@@ -14,6 +14,7 @@ crontab_SOURCES = crontab.c misc.c read_config.c entry.c env.c
 crond_LDADD = @LIBOBJS@
 install-exec-local:
 	$(INSTALL_PROGRAM) -m 4755 -o daemon crontab $(bindir)
+	$(INSTALL_PROGRAM) cron.conf $(sysconfdir)
 uninstall-local:
 	rm -f $(sbindir)/crond
 	rm -f $(bindir)/crontab

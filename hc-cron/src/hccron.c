@@ -6,7 +6,7 @@
  * 
  * This should go together with cron by Paul Vixie
  */
-static char rcsid[] = "$Id: hccron.c,v 1.9 2000/06/18 10:26:40 fbraun Exp $";
+static char rcsid[] = "$Id: hccron.c,v 1.10 2000/06/18 11:55:55 fbraun Exp $";
 
 #include <sys/stat.h>		/* for stat() and open() */
 #include <unistd.h>		/* for stat() and close() */
@@ -51,7 +51,7 @@ build_cu_list (cron_db * db, list_cu ** cul_head)
     {
       Debug (DLOAD, ("read lastrun file.\n"));
 
-#ifdef DEBUGGING
+#if DEBUGGING
       if (strftime (msg, (size_t) MAX_MSGLEN, "%c", localtime (&lr.st_mtime)))
 	log_it ("CRON", getpid (), "TIME last", msg);
       if (strftime (msg, (size_t) MAX_MSGLEN, "%c", localtime (&reboot)))
@@ -181,7 +181,7 @@ save_lastrun (list_cu * cul)
 
   int file;
   struct utimbuf utbuf;
-#ifdef DEBUGGING
+#if DEBUGGING
   char msg[MAX_MSGLEN];
 #endif
 
@@ -196,7 +196,7 @@ save_lastrun (list_cu * cul)
       utbuf.actime = utbuf.modtime;
     }
 
-#ifdef DEBUGGING
+#if DEBUGGING
   if (strftime (msg, (size_t) MAX_MSGLEN, "%c", localtime (&utbuf.modtime)))
     log_it ("CRON", getpid (), "TIME save", msg);
 #endif
