@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: crontab.c,v 1.5 2000/06/18 09:53:30 fbraun Exp $";
+static char rcsid[] = "$Id: crontab.c,v 1.6 2001/03/10 19:26:15 Hazzl Exp $";
 
 /* crontab - install and manage per-user crontab files
  * vix 02may87 [RCS has the rest of the log]
@@ -147,8 +147,8 @@ parse_args (int argc, char *argv[], char **const config_file_p)
       fprintf (stderr, "bailing out.\n");
       exit (ERROR_EXIT);
     }
-  strcpy (User, pw->pw_name);
-  strcpy (RealUser, User);
+  strncpy (User, pw->pw_name, MAX_UNAME-1);
+  strncpy (RealUser, User, MAX_UNAME);
   Filename[0] = '\0';
   Option = opt_unknown;
   while (EOF != (argch = getopt (argc, argv, "u:lerx:")))
@@ -171,7 +171,7 @@ parse_args (int argc, char *argv[], char **const config_file_p)
 		       ProgramName, optarg);
 	      exit (ERROR_EXIT);
 	    }
-	  (void) strcpy (User, optarg);
+	  (void) strncpy (User, optarg, MAX_UNAME - 1);
 	  break;
 	case 'l':
 	  if (Option != opt_unknown)

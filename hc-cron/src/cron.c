@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: cron.c,v 1.9 2000/06/18 09:53:30 fbraun Exp $";
+static char rcsid[] = "$Id: cron.c,v 1.10 2001/03/10 19:26:15 Hazzl Exp $";
 
 #define	MAIN_PROGRAM
 #include "cron.h"
@@ -143,9 +143,10 @@ main (int argc, char *argv[])
   build_cu_list (&database, &CatchUpList);
   Debug (DMISC, ("about to run reboot jobs"));
   run_reboot_jobs (&database);
-  cron_sync ();
+
   while (TRUE)
     {
+      cron_sync (); 
 # if DEBUGGING
       if (!(DebugFlags & DTEST))
 # endif	 /*DEBUGGING*/
@@ -158,8 +159,6 @@ main (int argc, char *argv[])
 	CatchUpList = run_cu_list (CatchUpList);
       /* then run the regular jobs for this minute */
       cron_tick (&database);
-      /* sleep 1 minute */
-      TargetTime += 60;
     }
 }
 
@@ -237,6 +236,10 @@ cron_tick (cron_db * db)
  * could then get it to execute a given minute's jobs more than once.
  * instead we have the chance of missing a minute's jobs completely, but
  * that's something sysadmin's know to expect what with crashing computers..
+ * 
+ * Patch from <pererik@onedial.se>:
+ *   Do cron_sync() before each cron_sleep(), to handle changes to the system
+ *   time.
  */
 static void
 cron_sync (void)

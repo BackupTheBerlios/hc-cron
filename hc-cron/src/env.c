@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: env.c,v 1.1 1999/10/16 17:57:28 fbraun Exp $";
+static char rcsid[] = "$Id: env.c,v 1.2 2001/03/10 19:26:15 Hazzl Exp $";
 
 #include "cron.h"
 
@@ -107,7 +107,7 @@ load_env (char *envstr, FILE * f)
 {
   long filepos;
   int fileline;
-  char name[MAX_ENVSTR], val[MAX_ENVSTR];
+  char name[MAX_ENVSTR], val[MAX_ENVSTR], *val2;
   int fields;
 
   filepos = ftell (f);
@@ -134,6 +134,7 @@ load_env (char *envstr, FILE * f)
   /*
    * process value string
    */
+   val2 =val;
   /*local */
   {
     int len = strdtb (val);
@@ -145,14 +146,14 @@ load_env (char *envstr, FILE * f)
 	    if (val[len - 1] == val[0])
 	      {
 		val[len - 1] = '\0';
-		(void) strcpy (val, val + 1);
+		val2 = val + 1;
 	      }
 	  }
       }
   }
 
-  (void) snprintf (envstr, MAX_ENVSTR, "%s=%s", name, val);
-  Debug (DPARS, ("load_env, <%s> <%s> -> <%s>\n", name, val, envstr));
+  (void) snprintf (envstr, MAX_ENVSTR, "%s=%s", name, val2);
+  Debug (DPARS, ("load_env, <%s> <%s> -> <%s>\n", name, val2, envstr));
   return (TRUE);
 }
 

@@ -16,7 +16,7 @@
  */
 
 static char rcsid[] =
-  "$Id: database.c,v 1.3 2000/06/18 09:53:30 fbraun Exp $";
+  "$Id: database.c,v 1.4 2001/03/10 19:26:15 Hazzl Exp $";
 
 /* vix 26jan87 [RCS has the log]
  */
@@ -113,7 +113,7 @@ load_database (cron_db * old_db)
       if (dp->d_name[0] == '.')
 	continue;
 
-      (void) strcpy (fname, dp->d_name);
+      (void) strncpy (fname, dp->d_name, MAXNAMELEN);
       snprintf (tabname, MAXNAMLEN + 1, CRON_TAB (fname));
 
       process_crontab (fname, fname, tabname, &statbuf, &new_db, old_db);
