@@ -1,4 +1,5 @@
 SUBDIRS = include
+EXTRA_DIST = cron.conf
 MOSTLYCLEANFILES = *~ *.s
 MAINTAINERCLEANFILES = Makefile.in
 
