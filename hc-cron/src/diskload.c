@@ -22,6 +22,8 @@
  * 	  non catch up jobs that occur while the disk is busy will be missed
  */
 
+static char rcsid[]="$Id: diskload.c,v 1.3 1999/10/20 17:24:07 fbraun Exp $";
+
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
  * 	  *matrix : 	an array of exactly 256 bytes.
@@ -117,12 +119,18 @@ wait_diskload (void)
 	      "could not open /proc/stat. No disk busy waiting");
       return;
     };
+  /* we have to call get_diskload() twice because the first invocation does
+   * not return any meaningful results. We can do this here because this 
+   * function is called only once (for the time being at least)
+   */
+  (void) get_diskload (da_file, search);
+  sleep(2);
   load = get_diskload (da_file, search);
   Debug (DMISC, ("diskload: %d irq/sec\n", load));
   while (load > MAX_DISKLOAD)
     {
       log_it ("CRON", getpid (), "STARTUP", "waiting for busy disk");
-      sleep (15);
+      sleep (10);
       load = get_diskload (da_file, search);
       Debug (DMISC, ("diskload: %d irq/sec\n", load));
     };
