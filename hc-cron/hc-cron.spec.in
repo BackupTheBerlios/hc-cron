@@ -29,6 +29,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/{bin,man/man{1,5,8},sbin}
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/{init.d,rc{0,1,2,3,4,5,6}.d}
 make install prefix=$RPM_BUILD_ROOT/usr
 mkdir -p $RPM_BUILD_ROOT/var/spool/cron
+chown daemon $RPM_BUILD_ROOT /var/spool/cron
 chmod 700 $RPM_BUILD_ROOT/var/spool/cron
 mkdir -p $RPM_BUILD_ROOT/etc/cron.d
 chmod 755 $RPM_BUILD_ROOT/etc/cron.d

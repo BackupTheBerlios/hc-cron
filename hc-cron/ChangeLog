@@ -1,3 +1,4 @@
+18/JUN/2000	made crontab(1) setuid daemon instead of root
 17/JUN/2000	integrated patch by Bryan Henderson <bryanh@giraffe-data.com> 
 		documentation changes, new flags -e and -f, config_file,
 		various bugfixes
