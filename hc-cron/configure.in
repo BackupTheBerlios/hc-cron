@@ -27,7 +27,6 @@ AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
 AC_FUNC_VFORK
-AC_FUNC_GETLOADAVG
 AC_CHECK_FUNCS(gethostname gettimeofday mkdir putenv strdup strtod fchown \
 		fchmod setpgrp initgroups setlinebuf seteuid setreuid)
 AC_FUNC_SETPGRP
