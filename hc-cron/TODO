@@ -3,6 +3,4 @@
 
 - check whether the compiled code can actually work
 
-- "make distcheck" fails for unknown reasons
-
 - merge Steve's changes from the debian version of vixie-cron (LoLo)
