@@ -13,7 +13,7 @@
 #define BUF_OFFSET 544 // offset in /proc/stat where we start looking for disk_io
 #define BUF_LEN 128 // max len of disk_io info
 #define DISK_STRING "\ndisk_io: (3,0):("
-#define DISK_STRING_LEN 16
+#define DISK_STRING_LEN 17
 
 extern int diskavg_file;
 extern char diskavg_matrix[];
@@ -27,7 +27,7 @@ extern char diskavg_matrix[];
  */
 
 static char rcsid[] =
-  "$Id: diskload.c,v 1.9 2001/05/31 17:08:33 Hazzl Exp $";
+  "$Id: diskload.c,v 1.10 2001/05/31 17:57:58 Hazzl Exp $";
 
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
@@ -43,7 +43,7 @@ init_search (const char *s, size_t len, char *matrix)
   (void) memset (matrix,(int) len, 256);
   do
     {
-      matrix[(int) *(s++)] = len--;
+      matrix[(int) *(s++)] = --len;
     }
   while (len >= 1); //don't index the last char in the matrix
 }
@@ -58,15 +58,15 @@ char *
 search (const char *buffer, const size_t buf_len, 
 	const char *string, const size_t str_len, const char *matrix)
 {
-  size_t pos;
-  const char last_char = string[str_len];
+  const size_t len = str_len - 1;
+  const char last_char = string[len];
+  size_t pos = len;
 
-  pos = str_len;
   while (pos < buf_len)
     {
        if (buffer[pos] == last_char)
 	 {
-	    if (strncmp (&buffer[pos - str_len], string, str_len) == 0)
+	    if (strncmp (&buffer[pos - len], string, str_len) == 0)
 	      return (char *) &buffer[pos];	      
 	 }
        pos += matrix[(int) buffer[pos]];
