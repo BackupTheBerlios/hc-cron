@@ -7,7 +7,7 @@ sbin_PROGRAMS = crond
 ## crontab needs to be installed suid-root so we have to do that manually.
 noinst_PROGRAMS = crontab
 crond_SOURCES = cron.c database.c do_command.c entry.c env.c hccron.c job.c \
-		misc.c popen.c user.c
+		misc.c popen.c user.c diskload.c
 crontab_SOURCES = crontab.c misc.c entry.c env.c
 crond_LDADD = @LIBOBJS@
 install-exec-local:

@@ -16,7 +16,7 @@
  */
 
 static char rcsid[] =
-  "$Id: cron.c,v 1.1 1999/10/16 17:57:28 fbraun Exp $";
+  "$Id: cron.c,v 1.2 1999/10/20 11:52:52 fbraun Exp $";
 
 #define	MAIN_PROGRAM
 #include "cron.h"
@@ -120,12 +120,16 @@ main (int argc, char *argv[])
     }
 
   acquire_daemonlock (0);
+         
+  /* before running the first jobs wait the for the disk to settle down */
+  wait_diskload();
+  
   database.head = NULL;
   database.tail = NULL;
   database.mtime = (time_t) 0;
   load_database (&database);
-  run_reboot_jobs (&database);
   build_cu_list (&database, &CatchUpList);
+  run_reboot_jobs (&database);
   cron_sync ();
   while (TRUE)
     {

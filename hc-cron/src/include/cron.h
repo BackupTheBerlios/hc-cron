@@ -17,7 +17,7 @@
 
 /* cron.h - header for vixie's cron
  *
- * $Id: cron.h,v 1.1 1999/10/16 17:57:28 fbraun Exp $
+ * $Id: cron.h,v 1.2 1999/10/20 11:53:07 fbraun Exp $
  *
  * vix 14nov88 [rest of log is in RCS]
  * vix 14jan87 [0 or 7 can be sunday; thanks, mwm@berkeley]
@@ -228,9 +228,10 @@ void set_cron_uid __P ((void)),
   acquire_daemonlock __P ((int)),
   skip_comments __P ((FILE *)),
   log_it __P ((char *, int, char *, char *)), log_close __P ((void)),
-		/* next four added by hcl feb 98 */
+		/* next five added by hcl */
   build_cu_list __P ((cron_db *, list_cu **)),
-  save_lastrun __P ((list_cu *));
+  save_lastrun __P ((list_cu *)),
+  wait_diskload __P ((void));
 
 RETSIGTYPE  sigterm_handler __P ((int));
 
