@@ -15,14 +15,16 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: cron.c,v 1.11 2001/03/10 19:27:52 Hazzl Exp $";
+static char rcsid[] = "$Id: cron.c,v 1.12 2001/03/13 16:25:38 Hazzl Exp $";
 
 #define	MAIN_PROGRAM
 #include "cron.h"
 #include <sys/signal.h>
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
 # include <time.h>
+#endif TIME_WITH_SYS_TIME
 #else
 # include <time.h>
 #endif
