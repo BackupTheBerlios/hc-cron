@@ -1,6 +1,7 @@
 16/OCT/1999	switched over to autoconf and friends so that costomization
 		happens with a ./configure script. This entailed a major
 		overhaul of the directory structure and some code modifications
+		put the whole thing under cvs control
 hc-cron 0.13
 26/SEP/1999	created spec-file for rpm packaging.
 		cleaned up directory structure
