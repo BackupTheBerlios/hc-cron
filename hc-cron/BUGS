@@ -1,4 +1,0 @@
-known bugs:
-somehow cron does not die properly at APM_SUSPEND. If the computer APM_RESUMES
-cron touches cron.lastrun again, missing all the jobs it would have to catch
-up :-(
