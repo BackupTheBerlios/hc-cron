@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: job.c,v 1.9 2002/04/13 19:16:41 Hazzl Exp $";
+static char rcsid[] = "$Id: job.c,v 1.10 2002/04/14 10:23:18 Hazzl Exp $";
 
 #include "cron.h"
 #include <unistd.h>
@@ -74,7 +74,7 @@ job_runqueue (void)
   int run = 0;
    
   idle = TRUE;
-  if (diskload = get_diskload (diskavg_file, diskavg_matrix) > MAX_DISKLOAD)
+  if ((diskload = get_diskload (diskavg_file, diskavg_matrix)) > MAX_DISKLOAD)
     {
       idle = FALSE;
       Debug (DSCH, ("The harddisk is busy. Won't run RUN_ONLY_IDLE jobs"));
