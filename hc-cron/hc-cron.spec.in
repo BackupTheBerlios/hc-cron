@@ -1,32 +1,33 @@
-Summary: A program for executing specified programs at set times.
-Name: hc-cron
-Version: @VERSION@
-Release: 1
+Summary:   A program for executing specified programs at set times.
+Name:      hc-cron
+Version:   @VERSION@
+Release:   1
 Copyright: GPL
-Group: System Environment/Base
-Source0: http://www.in-berlin.de/User/fbraun/hc-cron-@VERSION@.tar.gz
+Group:     System Environment/Base
+Source:    http://www.in-berlin.de/User/fbraun/hc-cron-@VERSION@.tar.gz
 Buildroot: /var/tmp/%{name}-root
 Obsoletes: vixie-cron
-Prereq: /sbin/chkconfig
+Prereq:    /sbin/chkconfig
 
 %description
 This is a cron daemon for ``home computers'' that don't run all the time.
 Cron is a standard UNIX daemon that runs specified programs at scheduled
 times. hc-cron is a drop-in replacement for vixie-cron that remembers when
-it is shut down. On startup it checks whther any jobs have occurred during
+it is shut down. On startup it checks whether any jobs have occurred during
 downtime and catches these up.
 
 %prep
 %setup
 
 %build
+./configure --prefix=/usr
 make CFLAGS="$RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/usr/{bin,man/man{1,5,8},sbin}
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/{init.d,rc{0,1,2,3,4,5,6}.d}
-make install DESTDIR=$RPM_BUILD_ROOT
+make install prefix=$RPM_BUILD_ROOT/usr
 mkdir -p $RPM_BUILD_ROOT/var/spool/cron
 chmod 700 $RPM_BUILD_ROOT/var/spool/cron
 mkdir -p $RPM_BUILD_ROOT/etc/cron.d
@@ -35,7 +36,6 @@ mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 install -m644 redhat/cron.log $RPM_BUILD_ROOT/etc/logrotate.d/cron
 mkdir -p $RPM_BUILD_ROOT/var/lib
 touch $RPM_BUILD_ROOT/var/lib/cron.lastrun
-
 install -m755 redhat/hc-cron.init $RPM_BUILD_ROOT/etc/rc.d/init.d/crond
 cd $RPM_BUILD_ROOT/etc/rc.d
 ln -sf ../init.d/crond rc0.d/K60crond
@@ -64,6 +64,8 @@ fi
 %files
 
 %defattr(-,root,root)
+%doc AUTHORS BUGS CHANGES.vix ChangeLog CONVERSION COPYING FEATURES INSTALL MAIL NEWS README README.vix THANKS TODO
+
 /usr/sbin/crond
 /usr/bin/crontab
 /usr/man/man8/crond.8
@@ -85,5 +87,8 @@ fi
 %config /etc/logrotate.d/cron
 
 %changelog
+* Wed Jan 12 2000 <Mikko.Tiihonen@hut.fi>
+- fixed the spec file and re-added the startup script
+
 * Fri Sep 10 1999 Bill Nottingham <notting@redhat.com>
 - chkconfig --del in %preun, not %postun

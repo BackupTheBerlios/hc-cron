@@ -1,3 +1,9 @@
+hc-cron 0.84
+15/JAN/2000	updated spec-file to build RPMs properly (Mikko Tiihonen)
+		#define USE_SIGCHLD in options.h
+hc-cron 0.83
+27/DEC/1999	replace several #ifdefs with autoconf stuff
+		make distcheck now works
 hc-cron 0.82
 19/DEC/1999	wait for busy disks only if RUN_ONLY_IDLE flag is set for a job
 hc-cron 0.81

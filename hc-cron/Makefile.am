@@ -1,5 +1,5 @@
 EXTRA_DIST = BUGS CHANGES.vix CONVERSION FEATURES MAIL TODO README.vix\
 	hc-cron.spec
-SUBDIRS = src doc
+SUBDIRS = src doc redhat
 MOSTLYCLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in configure
