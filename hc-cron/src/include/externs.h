@@ -92,7 +92,3 @@ extern int getdtablesize __P ((void));
 #ifndef HAVE_SETENV
 extern int setenv __P ((char *, char *, int));
 #endif
-
-#ifndef HAVE_GETLOADAVG
-extern double getloadavg __P ((void));
-#endif
