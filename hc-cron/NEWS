@@ -1,5 +1,10 @@
-hc-cron-0.80
+This file lists the most important changes since hc-cron 0.13. For a more
+detailled list see the ChangeLog
+
+hc-cron-0.85
 ============
 - now uses configure script
 - cleaned up source code and directory structure
-- waits for disk activity to settle down before starting any jobs
+- can wait for disk activity to settle down before starting some jobs
+- can use a configuration file optionally
+- can pass its environment to the jobs that are run

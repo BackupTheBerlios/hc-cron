@@ -1,3 +1,7 @@
+hc-cron 0.85
+08/JUL/2000	updated NEWS and INSTALL
+26/JUN/2000	use only one sigaction structure in setting up the signal
+		handlers
 18/JUN/2000	made crontab(1) setuid daemon instead of root
 17/JUN/2000	integrated patch by Bryan Henderson <bryanh@giraffe-data.com> 
 		documentation changes, new flags -e and -f, config_file,
