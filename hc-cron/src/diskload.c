@@ -12,18 +12,19 @@
 
 #define BUF_LEN 128
 
+extern int diskavg_file;
+extern char diskavg_matrix[];
+
 /* diskload.c - makes cron wait on startup for the disk to calm down before
  * starting any jobs. For this we read the number of disk irqs from /proc/stat.
  * 
  * Drawbacks of the current implementation: 
  *	- we just read the irqs for the load of the first installed disk, all 
  *	  otheres are silently ignored,
- * 	- we simply do a sleep wait before passing control to other functions
- * 	  non catch up jobs that occur while the disk is busy will be missed
  */
 
 static char rcsid[] =
-  "$Id: diskload.c,v 1.6 1999/11/21 09:03:19 fbraun Exp $";
+  "$Id: diskload.c,v 1.7 1999/12/19 11:28:33 fbraun Exp $";
 
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
@@ -77,7 +78,8 @@ search (char *buffer,
  * input: fd:	file descriptor for /proc/stat
  * 	  *matrix: search matrix
  * return: average diskload since last call in no of interrupts/sec
- * 	   or -1 on any error or 0 if it is called twice within one second
+ * 	   or -1 on any error. If called multiple times within one 
+ *	   second, we return the same result each time.
  * Nota Bene: The first call to getdiskload() returns the average number
  *	      of disk interrups per second since Jan 1, 1970, normally 0.
  */
@@ -88,53 +90,43 @@ get_diskload (int fd, char *matrix)
   char *found;
   static time_t time_store = 0;
   time_t time_tmp;
-  static unsigned int result_store = 0;
-  unsigned int result_tmp;
+  static unsigned int load_store = 0;
+  unsigned int load_tmp;
+  static int result = 0;
 
-  if (lseek (fd, 0, SEEK_SET))
-    return -1;
-  if (read (fd, buffer, BUF_LEN) != BUF_LEN)
-    return -1;
-  buffer[BUF_LEN] = 0;
-
-  if ((found = search (buffer, BUF_LEN, "\ndisk ", 6, matrix)))
+  time_tmp = time_store;
+  if (time_tmp != time (&time_store))
     {
-      result_tmp = result_store;
-      result_store = (unsigned int) strtol (found, NULL, 10);
-      time_tmp = time_store;
-      if (time_tmp == time (&time_store))
-	return 0;
-      return (int) ((result_store - result_tmp) / (time_store - time_tmp));
-    };
-  return -1;
+      if (lseek (fd, 0, SEEK_SET))
+	return -1;
+      if (read (fd, buffer, BUF_LEN) != BUF_LEN)
+	return -1;
+
+      buffer[BUF_LEN] = 0;
+      if ((found = search (buffer, BUF_LEN, "\ndisk ", 6, matrix)))
+	{
+	  load_tmp = load_store;
+	  load_store = (unsigned int) strtol (found, NULL, 10);
+	  result = (int) ((load_store - load_tmp) / (time_store - time_tmp));
+	}
+      else
+	return -1;
+    }
+  return result;
 }
 
 void
-wait_diskload (void)
+init_diskload (void)
 {
-  int da_file, load;
-  char search[256];
-  init_search ("\ndisk ", search);
-  if ((da_file = open ("/proc/stat", O_RDONLY)) == -1)
+  init_search ("\ndisk ", diskavg_matrix);
+  if ((diskavg_file = open ("/proc/stat", O_RDONLY)) == -1)
     {
       log_it ("CRON", getpid (), "STARTUP",
 	      "could not open /proc/stat. No disk busy waiting");
       return;
     };
-  /* we have to call get_diskload() twice because the first invocation does
-   * not return any meaningful results. We can do this here because this 
-   * function is called only once (for the time being at least)
+  /* we have to call get_diskload() here because the first invocation does
+   * not return any meaningful results. 
    */
-  (void) get_diskload (da_file, search);
-  sleep (2);
-  load = get_diskload (da_file, search);
-  Debug (DMISC, ("diskload: %d irq/sec\n", load));
-  while (load > MAX_DISKLOAD)
-    {
-      log_it ("CRON", getpid (), "STARTUP", "waiting for busy disk");
-      sleep (30);
-      load = get_diskload (da_file, search);
-      Debug (DMISC, ("diskload: %d irq/sec\n", load));
-    };
-  return;
+  (void) get_diskload (diskavg_file, diskavg_matrix);
 }

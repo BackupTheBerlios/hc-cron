@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: job.c,v 1.2 1999/10/20 12:07:45 fbraun Exp $";
+static char rcsid[] = "$Id: job.c,v 1.3 1999/12/19 11:28:33 fbraun Exp $";
 
 #include "cron.h"
 #include <unistd.h>
@@ -24,6 +24,8 @@ static char rcsid[] = "$Id: job.c,v 1.2 1999/10/20 12:07:45 fbraun Exp $";
 #include <fcntl.h>
 
 extern job *jhead, *jtail;
+extern int diskavg_file;
+extern char diskavg_matrix[];
 
 void
 job_add (register entry * e, register user * u)
@@ -67,16 +69,22 @@ job_add (register entry * e, register user * u)
 int
 job_runqueue (void)
 {
-  register job *j, *jn;
-  register int NotIdle = FALSE;
-  register int run = 0;
+  job *j, *jn;
+  int idle = TRUE;
+  int run = 0;
 
-  NotIdle = (getloadavg () > MAXLOADAVG);
+  idle = (getloadavg () <= MAXLOADAVG
+	  && get_diskload (diskavg_file, diskavg_matrix) <= MAX_DISKLOAD);
 
   for (j = jhead; j; j = jn)
     {
       jn = j->next;
-      if (!(NotIdle && (j->e->flags & RUN_ONLY_IDLE)))
+
+      /* run command if we are idle
+       * or
+       * if the RUN_ONLY_IDLE flag is not set
+       */
+      if (idle || (!(j->e->flags & RUN_ONLY_IDLE)))
 	{
 	  do_command (j->e, j->u);
 	  /* if we want to run idle only once (probably a catch up job)

@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: cron.c,v 1.5 1999/11/12 16:18:50 fbraun Exp $";
+static char rcsid[] = "$Id: cron.c,v 1.6 1999/12/19 11:28:33 fbraun Exp $";
 
 #define	MAIN_PROGRAM
 #include "cron.h"
@@ -120,10 +120,8 @@ main (int argc, char *argv[])
 
   acquire_daemonlock (0);
 
-  /* before running the first jobs wait the for the disk to settle down */
-  Debug (DMISC, ("about to wait for busy disk\n"));
-  wait_diskload ();
-  Debug (DMISC, ("OK, disk isn't busy\n"));
+  /* initialize waiting for busy disk */
+  init_diskload ();
 
   database.head = NULL;
   database.tail = NULL;
