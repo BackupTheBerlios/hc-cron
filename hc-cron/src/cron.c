@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: cron.c,v 1.3 1999/10/20 12:07:45 fbraun Exp $";
+static char rcsid[] = "$Id: cron.c,v 1.4 1999/11/11 22:10:40 fbraun Exp $";
 
 #define	MAIN_PROGRAM
 #include "cron.h"
@@ -84,7 +84,7 @@ main (int argc, char *argv[])
   set_cron_uid ();
   set_cron_cwd ();
 
-#if defined(POSIX)
+#if HAVE_SETENV
   setenv ("PATH", _PATH_DEFPATH, 1);
 #endif
 
@@ -121,13 +121,19 @@ main (int argc, char *argv[])
   acquire_daemonlock (0);
 
   /* before running the first jobs wait the for the disk to settle down */
+  Debug(DMISC, ("about to wait for busy disk\n"));
   wait_diskload ();
+  Debug(DMISC, ("OK, disk isn't busy\n"));
 
   database.head = NULL;
   database.tail = NULL;
   database.mtime = (time_t) 0;
+ 
+  Debug(DMISC, ("about to load database"));
   load_database (&database);
+  Debug(DMISC, ("about to build catch up list"));
   build_cu_list (&database, &CatchUpList);
+  Debug(DMISC, ("about to run reboot jobs"));
   run_reboot_jobs (&database);
   cron_sync ();
   while (TRUE)
