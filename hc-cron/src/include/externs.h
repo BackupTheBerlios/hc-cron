@@ -48,33 +48,33 @@ extern char *tzname[2];
 # endif
 #endif
 
- 
-#if 0/*!defined(POSIX) && !defined(ATT)*/
+
+#if 0				/*!defined(POSIX) && !defined(ATT) */
 /* classic BSD */
-extern	time_t		time();
-extern	unsigned	sleep();
-extern	struct tm	*localtime();
-extern	struct passwd	*getpwnam();
-extern	int		errno;
-extern	void		perror(), exit(), free();
-extern	char		*getenv(), *strcpy(), *strchr(), *strtok();
-extern	void		*malloc(), *realloc();
+extern time_t time ();
+extern unsigned sleep ();
+extern struct tm *localtime ();
+extern struct passwd *getpwnam ();
+extern int errno;
+extern void perror (), exit (), free ();
+extern char *getenv (), *strcpy (), *strchr (), *strtok ();
+extern void *malloc (), *realloc ();
 #endif
 
 #ifndef HAVE_STRCASECMP
-extern	int		strcasecmp __P((char *, char *));
+extern int strcasecmp __P ((char *, char *));
 #endif
 
 #ifndef HAVE_STRDUP
-extern	char		*strdup __P((char *));
+extern char *strdup __P ((char *));
 #endif
 
 #ifndef HAVE_STRERROR
-extern	char		*strerror __P((int));
+extern char *strerror __P ((int));
 #endif
 
 #ifndef HAVE_FLOCK
-extern	int		flock __P((int, int));
+extern int flock __P ((int, int));
 # define LOCK_SH 1
 # define LOCK_EX 2
 # define LOCK_NB 4
@@ -82,17 +82,17 @@ extern	int		flock __P((int, int));
 #endif
 
 #ifndef HAVE_SETSID
-extern	int		setsid __P((void));
+extern int setsid __P ((void));
 #endif
 
 #ifndef HAVE_GETDTABLESIZE
-extern	int		getdtablesize __P((void));
+extern int getdtablesize __P ((void));
 #endif
 
 #ifndef HAVE_SETENV
-extern	int		setenv __P((char *, char *, int));
+extern int setenv __P ((char *, char *, int));
 #endif
 
 #ifndef HAVE_GETLOADAVG
-extern	double		getloadavg __P((void));
+extern double getloadavg __P ((void));
 #endif

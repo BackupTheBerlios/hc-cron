@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "options.h"
+#include "cron.h"
 
 #define BUF_LEN 128
 
@@ -112,17 +113,18 @@ wait_diskload (void)
   init_search ("\ndisk ", search);
   if ((da_file = open ("/proc/stat", O_RDONLY)) == -1)
     {
-      log_it("CRON", getpid(), "STARTUP", "could not open /proc/stat. No disk busy waiting");
+      log_it ("CRON", getpid (), "STARTUP",
+	      "could not open /proc/stat. No disk busy waiting");
       return;
     };
-   load = get_diskload (da_file, search);
-   Debug(DMISC, ("diskload: %d irq/sec\n", load);
+  load = get_diskload (da_file, search);
+  Debug (DMISC, ("diskload: %d irq/sec\n", load));
   while (load > MAX_DISKLOAD)
-     {
-	log_it("CRON", getpid(), "STARTUP", "waiting for busy disk");
-	sleep(15);
-	load = get_diskload(da_file, search);
-	Debug(DMISC, ("diskload: %d irq/sec\n", load);
-     };
+    {
+      log_it ("CRON", getpid (), "STARTUP", "waiting for busy disk");
+      sleep (15);
+      load = get_diskload (da_file, search);
+      Debug (DMISC, ("diskload: %d irq/sec\n", load));
+    };
   return;
 }

@@ -1,4 +1,5 @@
-hc-cron-0.80
+hc-cron-0.81
 ============
 - now uses configure script
 - cleaned up source code and directory structure
+- waits for disk activity to settle down before starting any jobs

@@ -15,8 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] =
-  "$Id: job.c,v 1.1 1999/10/16 17:57:28 fbraun Exp $";
+static char rcsid[] = "$Id: job.c,v 1.2 1999/10/20 12:07:45 fbraun Exp $";
 
 #include "cron.h"
 #include <unistd.h>

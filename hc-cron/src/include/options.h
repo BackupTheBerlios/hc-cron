@@ -1,5 +1,5 @@
 /*
- * $Id: options.h,v 1.2 1999/10/20 11:53:07 fbraun Exp $
+ * $Id: options.h,v 1.3 1999/10/20 12:07:46 fbraun Exp $
  */
 
 #if HAVE_PATHS_H
@@ -42,32 +42,32 @@
 #define LOG_FILE	"/var/log/cron"
 
 	/* if you want to use syslog(3) instead of appending
-			 * to CRONDIR/LOG_FILE (/var/cron/log, e.g.), define
-			 * SYSLOG here.  Note that quite a bit of logging
-			 * info is written, and that you probably don't want
-			 * to use this on 4.2bsd since everything goes in
-			 * /usr/spool/mqueue/syslog.  On 4.[34]bsd you can
-			 * tell /etc/syslog.conf to send cron's logging to
-			 * a separate file.
-			 *
-			 * Note that if this and LOG_FILE are both defined, 
-	 		 * then logging will go to both
-			 * places.
-			 */
+	   * to CRONDIR/LOG_FILE (/var/cron/log, e.g.), define
+	   * SYSLOG here.  Note that quite a bit of logging
+	   * info is written, and that you probably don't want
+	   * to use this on 4.2bsd since everything goes in
+	   * /usr/spool/mqueue/syslog.  On 4.[34]bsd you can
+	   * tell /etc/syslog.conf to send cron's logging to
+	   * a separate file.
+	   *
+	   * Note that if this and LOG_FILE are both defined, 
+	   * then logging will go to both
+	   * places.
+	 */
 /*#define SYSLOG */
 
 		/* this file keeps track of when cron was last run so
-			 * that cron can check for jobs it should have started
-			 * during downtime. Added by hcl feb98
-			 */
+		   * that cron can check for jobs it should have started
+		   * during downtime. Added by hcl feb98
+		 */
 #define LASTRUN_FILE	"/var/lib/cron.lastrun"
 
 			/* we get the system loadaverage from here.
 			 * If not defined RUN_ONLY_IDLE is disabled.
 			 */
 #define LOADAVG_FILE	"/proc/loadavg"
-   
-  
+
+
   /* where should the daemon stick its PID? */
 #ifdef _PATH_VARRUN
 # define PIDDIR	_PATH_VARRUN
@@ -100,11 +100,11 @@
  * these are site-dependent
  */
 
-#define MAXLOADAVG      .8  /* at which loadavg don't run IDLE jobs? */
-#define MAX_DISKLOAD	50	/* how many disk-irqs/sec are considered heavy load? /*
+#define MAXLOADAVG      .8	/* at which loadavg don't run IDLE jobs? */
+#define MAX_DISKLOAD 50		/* how many disk-irqs/sec are considered heavy load? */
 
 #ifndef DEBUGGING
-#define DEBUGGING 0	/* 1 or 0 -- do you want debugging code built in? */
+#define DEBUGGING 0		/* 1 or 0 -- do you want debugging code built in? */
 #endif
 
 			/*
@@ -117,9 +117,9 @@
 			 */
 #define MAILCMD _PATH_SENDMAIL
 #define MAILARGS "%s -FCronDaemon -odi -oem -- %s"
-			/* -Fx	 = set full-name of sender
-			 * -odi	 = Option Deliverymode Interactive
-			 * -oem	 = Option Errors Mailedtosender
+			/* -Fx   = set full-name of sender
+			 * -odi  = Option Deliverymode Interactive
+			 * -oem  = Option Errors Mailedtosender
 			 */
 
 /* #define MAILCMD "/bin/mail" */

@@ -17,7 +17,7 @@
 
 /* cron.h - header for vixie's cron
  *
- * $Id: cron.h,v 1.2 1999/10/20 11:53:07 fbraun Exp $
+ * $Id: cron.h,v 1.3 1999/10/20 12:07:45 fbraun Exp $
  *
  * vix 14nov88 [rest of log is in RCS]
  * vix 14jan87 [0 or 7 can be sunday; thanks, mwm@berkeley]
@@ -110,7 +110,7 @@
 				printf message
 #else /* !DEBUGGING */
 # define Debug(mask, message) \
-			
+
 #endif /* DEBUGGING */
 
 #define	Set_LineNum(ln)	{Debug(DPARS|DEXT,("linenum=%d\n",ln)); \
@@ -230,10 +230,9 @@ void set_cron_uid __P ((void)),
   log_it __P ((char *, int, char *, char *)), log_close __P ((void)),
 		/* next five added by hcl */
   build_cu_list __P ((cron_db *, list_cu **)),
-  save_lastrun __P ((list_cu *)),
-  wait_diskload __P ((void));
+  save_lastrun __P ((list_cu *)), wait_diskload __P ((void));
 
-RETSIGTYPE  sigterm_handler __P ((int));
+RETSIGTYPE sigterm_handler __P ((int));
 
 list_cu *run_cu_list __P ((list_cu *));
 
