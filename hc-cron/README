@@ -14,15 +14,16 @@ this program.
 Does your computer run 24 hours a day? Are you establishing uptime records
 that would scare users of other OS's? If so, this program is not for you.
 However, if you turn your computer off at least once a day, like the rest of
-us, you might find it quite helpful. This program is a modification of Paul
-Vixie's cron daemon that is intended for ``home computers'' i.e. computers
-that don't run all the time. Basicly what it does in addition to standard
-cron behaviour, is to remember the time it was shut down in the file
-/var/lib/cron.lastrun (or something similar) then reads it back at startup
-and looks whether any jobs have occured while it was down. If so, these are
-scheduled and executed one every minute. The files included in this
-distribution are those of the original vixie-cron3.0.1 with only minor
-changes, except for hccron.c which contains the additional code.
+us, you might find it quite helpful. But even if your computer runs 24/7
+this program can come in handy if you need your cron jobs to be executed
+reliably independent form down-times due to maintainance or crashes.
+
+This program is a modification of Paul Vixie's cron daemon that is intended
+for ``home computers'' i.e. computers that don't run all the time. Basicly
+what it does in addition to standard cron behaviour, is to remember the time
+when it last ran a job or was shut down. At startup it reads back this
+information and looks whether any jobs have occured while it was down. If
+so, these are scheduled and executed one every minute.
 
 I hacked this piece of code together because I was annoyed that standard
 cron didn't run the jobs regularly on my laptop. The same problem is solved
@@ -31,9 +32,8 @@ that adding yet another program to startup was the wrong approach. So I took
 a deep breath, downloaded the sources of vixie-cron (actually the patched
 version that is included in RedHat5.0) and tried my best. However, I don't
 really feel like my knowledge of C and programming in the UNIX environment
-is sufficient for such a project (also I have a thesis to write in real
-life, and it isn't in computer science). So I'd be happy if a *real*
-programmer could take the code, improve it, make it portable and so on.
+is sufficient for such a project. So I'd be happy if a *real* programmer
+could take the code, improve it, make it portable and so on.
 
 That being said, the program works nicely on my computer, however I don't
 guarantee it will on yours. If you or your computer take any damage from

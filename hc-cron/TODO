@@ -1,6 +1,6 @@
 - I created the preliminary configure.in script automatically.
   Do we need all these tests in configure.in? Do we even use all of them?
 
-- check whether the compiled code can actually work
-
 - merge Steve's changes from the debian version of vixie-cron (LoLo)
+
+- /proc/stat changed format in linux 2.3.99pre8 detect and read new format

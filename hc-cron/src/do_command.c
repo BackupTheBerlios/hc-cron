@@ -16,12 +16,12 @@
  */
 
 static char rcsid[] =
-  "$Id: do_command.c,v 1.2 1999/11/12 16:18:50 fbraun Exp $";
+  "$Id: do_command.c,v 1.3 2000/06/18 09:53:30 fbraun Exp $";
 
 #include "cron.h"
 #include <sys/signal.h>
-#if defined(SYSLOG)
-# include <syslog.h>
+#ifdef HAVE_SYSLOG_H
+#include <syslog.h>
 #endif
 #if HAVE_PATHS_H
 # include <paths.h>
@@ -52,13 +52,16 @@ do_command (entry * e, user * u)
       acquire_daemonlock (1);
       child_process (e, u);
       Debug (DPROC, ("[%d] child process done, exiting\n", getpid ()));
+#ifndef USE_SIGCHLD
       /* remember current time. This is not entirely correct because
        * the job might have been a catch-up job in that case we
        * should only save its timestamp but we don't have access to
        * the parent's CatchUpList variable
-       * added by hcl mar98
+       * we only have to do this here if we don't use SIGCHLD, otherwise
+       * the timestamp is saved correctly in our parent's sigchld_handler.
        */
       save_lastrun (NULL);
+#endif
       _exit (OK_EXIT);
       break;
     default:
@@ -75,17 +78,18 @@ child_process (entry * e, user * u)
   int stdin_pipe[2], stdout_pipe[2];
   register char *input_data;
   char *usernm, *mailto;
+  int verbose;			/* Put lots of info about job in the output mail msg */
   int children = 0;
 
   Debug (DPROC, ("[%d] child_process('%s')\n", getpid (), e->cmd));
   /* mark ourselves as different to PS command watchers by upshifting
-   * our program name.  This has no effect on some kernels.
+   * our process name.  This has no effect on some kernels.
    */
   /*local */
   {
     register char *pch;
 
-    for (pch = ProgramName; *pch; pch++)
+    for (pch = ProcessName; *pch; pch++)
       *pch = MkUpper (*pch);
   }
 
@@ -93,6 +97,15 @@ child_process (entry * e, user * u)
    */
   usernm = env_get ("LOGNAME", e->envp);
   mailto = env_get ("MAILTO", e->envp);
+
+  /* The environment variable CRON_VERBOSE is normally set in the crontab
+     itself.  It means user wants lots of info in the mail message to the cron
+     job owner, including the full environment.
+   */
+  if (env_get ("CRON_VERBOSE", e->envp))
+    verbose = 1;
+  else
+    verbose = 0;
 
   /* Check for arguments */
   if (mailto)
@@ -188,8 +201,9 @@ child_process (entry * e, user * u)
 
       /* that's the last thing we'll log.  close the log files.
        */
-#ifdef SYSLOG
-      closelog ();
+#ifdef HAVE_SYSLOG_H
+      if (log_syslog)
+	closelog ();
 #endif
 
       /* get new pgrp, void tty, etc.
@@ -358,6 +372,7 @@ child_process (entry * e, user * u)
   Debug (DPROC, ("[%d] child reading output from grandchild\n", getpid ()));
   /*local */
   {
+    char mailcmd[MAX_COMMAND];
     register FILE *in = fdopen (stdout_pipe[READ_PIPE], "r");
     register int ch = getc (in);
 
@@ -399,14 +414,18 @@ child_process (entry * e, user * u)
 	if (mailto)
 	  {
 	    register char **env;
-	    auto char mailcmd[MAX_COMMAND];
 	    auto char hostname[MAXHOSTNAMELEN];
 
 	    (void) gethostname (hostname, MAXHOSTNAMELEN);
-	    (void) snprintf (mailcmd, MAX_COMMAND, MAILARGS, MAILCMD, mailto);
+	    (void) snprintf (mailcmd, MAX_COMMAND, mailargs, mailprog, mailto);
 	    if (!(mail = cron_popen (mailcmd, "w", e)))
 	      {
-		perror (MAILCMD);
+		fprintf (stderr,
+			 "Unable to create process to mail job results.\n"
+			 "Mail command was: '%s'.  \n"
+			 "popen() returned errno %s (%d).\n", mailcmd,
+			 strerror (errno), errno);
+
 		(void) _exit (ERROR_EXIT);
 	      }
 	    fprintf (mail, "From: root (Cron Daemon)\n");
@@ -416,8 +435,11 @@ child_process (entry * e, user * u)
 # if defined(MAIL_DATE)
 	    fprintf (mail, "Date: %s\n", arpadate (&TargetTime));
 # endif	/* MAIL_DATE */
-	    for (env = e->envp; *env; env++)
-	      fprintf (mail, "X-Cron-Env: <%s>\n", *env);
+	    if (verbose)
+	      {
+		for (env = e->envp; *env; env++)
+		  fprintf (mail, "X-Cron-Env: <%s>\n", *env);
+	      }
 	    fprintf (mail, "\n");
 
 	    /* this was the first char from the pipe
@@ -462,8 +484,9 @@ child_process (entry * e, user * u)
 	    char buf[MAX_TEMPSTR];
 
 	    snprintf (buf, MAX_TEMPSTR,
-		      "mailed %d byte%s of output but got status 0x%04x\n",
-		      bytes, (bytes == 1) ? "" : "s", status);
+		      "mailed %d byte%s of output but got status 0x%04x.\n"
+		      "mail command was '%s'\n",
+		      bytes, (bytes == 1) ? "" : "s", status, mailcmd);
 	    log_it (usernm, getpid (), "MAIL", buf);
 	  }
 

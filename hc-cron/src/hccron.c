@@ -6,7 +6,7 @@
  * 
  * This should go together with cron by Paul Vixie
  */
-static char rcsid[] = "$Id: hccron.c,v 1.7 2000/01/15 16:09:52 fbraun Exp $";
+static char rcsid[] = "$Id: hccron.c,v 1.8 2000/06/18 09:53:30 fbraun Exp $";
 
 #include <sys/stat.h>		/* for stat() and open() */
 #include <unistd.h>		/* for stat() and close() */
@@ -18,7 +18,7 @@ static char rcsid[] = "$Id: hccron.c,v 1.7 2000/01/15 16:09:52 fbraun Exp $";
 
 #include "cron.h"
 
-#define	MAX_MSGLEN	25
+#define	MAX_MSGLEN	32
 
 /* entry:	db	- initialized cron database
  * 		cul_head- (list_cu **)uninitialized
@@ -43,13 +43,21 @@ build_cu_list (cron_db * db, list_cu ** cul_head)
   reboot = time (NULL);
   *cul_head = NULL;
 
-  if (stat (LASTRUN_FILE, &lr) != OK)
+  if (stat (lastrun_flie, &lr) != OK)
     {
       Debug (DLOAD, ("could not find lastrun file!\n"));
     }
   else
     {
       Debug (DLOAD, ("read lastrun file.\n"));
+
+#ifdef DEBUGGING
+      if (strftime (msg, (size_t) MAX_MSGLEN, "%c", localtime (&lr.st_mtime)))
+	log_it ("CRON", getpid (), "TIME last", msg);
+      if (strftime (msg, (size_t) MAX_MSGLEN, "%c", localtime (&reboot)))
+	log_it ("CRON", getpid (), "TIME reboot", msg);
+#endif
+
       for (*current = lr.st_mtime; *current < reboot; *current += 60)
 	{
 
@@ -133,7 +141,7 @@ build_cu_list (cron_db * db, list_cu ** cul_head)
 	}			/* for *current */
       snprintf (msg, MAX_MSGLEN, "%d jobs to catch up", counter);
       log_it ("CRON", getpid (), "STARTUP", msg);
-    }				/* else */
+    }				/* if(-f lastrun_flie) else */
 }
 
 /* entry:	cul - chronologically sorted catch up list
@@ -173,11 +181,14 @@ save_lastrun (list_cu * cul)
 
   int file;
   struct utimbuf utbuf;
+#ifdef DEBUGGING
+  char msg[MAX_MSGLEN];
+#endif
 
   if (cul)
     {
       utbuf.actime = cul->rtime;
-      utbuf.modtime = cul->rtime;
+      utbuf.modtime = utbuf.actime;
     }
   else
     {
@@ -185,19 +196,23 @@ save_lastrun (list_cu * cul)
       utbuf.actime = utbuf.modtime;
     }
 
-  file = open (LASTRUN_FILE, (O_WRONLY | O_CREAT),
+#ifdef DEBUGGING
+  if (strftime (msg, (size_t) MAX_MSGLEN, "%c", localtime (&utbuf.modtime)))
+    log_it ("CRON", getpid (), "TIME save", msg);
+#endif
+
+  file = open (lastrun_flie, (O_WRONLY | O_CREAT),
 	       (S_IRUSR | S_IWUSR | S_IRGRP));
   if (file != -1)
     {
       close (file);
-      utime (LASTRUN_FILE, &utbuf);
+      utime (lastrun_flie, &utbuf);
     }
 }
 
-RETSIGTYPE
-sigterm_handler (int x)
+RETSIGTYPE sigterm_handler (int x)
 {
-  log_close ();
   save_lastrun (CatchUpList);
+  log_close ();
   exit (OK_EXIT);
 }

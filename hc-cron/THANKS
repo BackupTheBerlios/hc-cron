@@ -27,3 +27,12 @@ of diffs I got from anybody.  Changes attributable to Scott are:
 	-> misc changes related to the side effects of fclose()
 	-> Sequent "universe" support added (may also help on Pyramids)
 	-> null pw_shell is dealt with now; default is /bin/sh
+
+=========================
+17 June 2000
+Felix Braun
+
+I have to thank Bryan Henderson <bryanh@giraffe-data.com> for providing me
+with a huge patch that includes some of the features of Matt Dillons cron
+deamon into hc-cron (passing of environment to the commands, using a
+configuration file) and making some security updates to crontab(1).

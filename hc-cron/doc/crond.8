@@ -1,0 +1,211 @@
+.\"/* Copyright 1988,1990,1993 by Paul Vixie
+.\" * All rights reserved
+.\" *
+.\" * Distribute freely, except: don't remove my name from the source or
+.\" * documentation (don't take credit for my work), mark your changes (don't
+.\" * get me blamed for your possible bugs), don't alter or remove this
+.\" * notice.  May be sold if buildable source is provided to buyer.  No
+.\" * warrantee of any kind, express or implied, is included with this
+.\" * software; use at your own risk, responsibility for damages (if any) to
+.\" * anyone resulting from the use of this software rests entirely with the
+.\" * user.
+.\" *
+.\" * This manual page was extensively modified by Bryan Henderson 2000.04.29.
+.\" 
+.\" 
+.TH CRON 8 "29 April 2000"
+.UC 3
+.SH NAME
+crond \- daemon to execute scheduled commands
+.SH SYNOPSIS
+.B crond
+.RB [ -e ]
+.RB [ -f
+.IR configuration_file ]
+
+.SH DESCRIPTION
+.B crond
+is the daemon that forms the center of the ``cron'' system, a system for
+running automated jobs at scheduled times.
+
+Though a system needs only one daemon, which runs as superuser, the jobs
+can run in the context of various users.  The jobs and their schedules
+are defined by files known as ``crontabs,'' which are described in 
+.BR crontab (5).
+Crontabs are normally created and maintained with the program
+.BR crontab (1).
+
+.B crond 
+wakes up once per minute, starts any cron jobs scheduled for that 
+minute, and then goes back to sleep.  Each cron job is a separate process,
+in the context of its owner.
+
+.SH OPTIONS
+.TP
+.B -e
+With this option, 
+.B crond
+passes all the environment variables with which it was invoked on to
+every cron job it runs.  Without it,
+.BR crond 's
+environment does not affect a cron job's environment.  Cron jobs also get
+a few environment variables that 
+.B crond
+sets itself and a user can specify environment variables in the crontab.
+See 
+.BR crontab (5)
+for details.
+.TP
+.B -f \fIconfig_file
+.I config_file
+is the file specification of the configuration file.  It defaults to 
+/etc/cron.conf.  Note that for 
+.B crontab
+to be effective, it must use the same configuration file as 
+.BR crond ,
+or at least a similar one.  And due to the nature of 
+.BR crontab ,
+the user cannot specify the configuration file as an invocation option --
+it has to be built in.
+
+
+.SH DETAILS
+
+.B crond 
+keeps all the crontabs in memory.  When it wakes up each minute,
+before checking the schedule, it checks for updated crontabs by looking
+first at the modification time of the crontab directory, and if that is
+since the last time 
+.B crond
+checked, it then looks at the modification times of all the crontabs
+in the directory.  This means you can modify a crontab and unless you
+also touch the directory that contains it, your modifications will not
+take effect right away.
+.B crontab
+always touches the directory to ensure that your changes take effect
+immediately.
+.B crond
+also checks the modification time of the system crontab and refreshes
+that if necessary.
+
+.B crond
+starts cron jobs with Standard Output and Standard Error pipe files
+open and collects any output to them.  If there is any,
+.B crond
+mails it to the owner of the cron job (except that the owner can
+specify an alternate destination for the mail).  The method of this
+mailing is determined by the cron configuration file.  Typically, 
+.B crond
+runs 
+.BR sendmail .
+
+.B crond
+keeps track of when it last ran as the modification time of its
+``lastrun'' file, which it touches every time it runs a job.
+When 
+.B crond
+starts, it checks this file and, if it exists, performs a
+``catch-up.''  This means that it determines all the jobs that would
+have run had it been running continuously, and schedules the missed
+ones immediately.  Settings in the crontabs for each cron job
+determine whether a job should be omitted from catch-up processing,
+run once per catch-up regardless of how many times it was missed, or
+run as many times as it was missed.
+
+The configuration file determines the following aspects of
+.BR crond 's
+operation:
+.IP
+The location of the user crontabs
+
+The system crontab
+
+Destination for logging messages
+
+How to mail the results of cron jobs
+
+The file that records the Process ID (PID) of 
+.B crond
+while it is running
+
+The file that records when 
+.B crond
+last ran (for purposes of catch-up when 
+.B crond
+runs again).
+.PP
+For details of the configuration file format and capabilities, see the
+comments in the configuration file.
+
+You need not have a configuration file; in fact, in older
+cron systems, there isn't one and all configuration parameters are built
+into
+.BR crond . 
+There are default configuration parameters for everything you can set in 
+the configuration file.  It is common for cron installers to modify the
+.B crond
+code to change these defaults and not modify this documentation, so
+take the following paragraph with a grain of salt.  You should just
+specify what you want explicitly in the configuration file.
+
+The defaults are as follows: The system crontab is /etc/crontab.  The
+user crontabs are in /var/spool/cron.  The PID file is
+/var/run/crond.pid and the last-run file is /var/lib/lastrun.  Log
+messages go to /var/log/cron and not to syslog.
+.B crond
+mails a message by invoking 
+.B sendmail 
+with the arguments 
+.B -FCronDaemon -odi -oem -- 
+.I mailto 
+where 
+.I mailto 
+is the value of the cron job's
+.B MAILTO
+environment variable or, if 
+.B MAILTO
+is not defined or is a null string, the username of the cron job owner.
+The pathname for 
+.B sendmail
+is the 
+.B _PATH_SENDMAIL 
+macro in the platform for which 
+.B crond
+was built.
+
+A system typically starts 
+.B crond
+from its startup scripts, e.g. /etc/rc.
+
+.B crond
+spawns a background process and the the foreground process terminates
+immediately.  In other words, there is no need to invoke it with "&".
+
+.SH BUGS
+.B cron
+might not show the expected results if it is shut down before it finishes
+processing all the jobs that it has to catch up. See file BUGS for further
+known BUGS and workarounds.
+
+.SH FILES
+.nf
+/etc/cron.conf
+/var/spool/cron/
+/etc/passwd
+/etc/crontab
+/var/lib/cron.lastrun
+/var/run/crond.pid
+/var/log/cron
+
+.SH "SEE ALSO"
+.BR crontab (1), 
+.BR crontab (5)
+
+.SH AUTHOR
+.nf
+Paul Vixie <paul@vix.com>
+modifications by Felix Braun <fbraun@atdot.org>
+modifications by Bryan Henderson <bryanh@giraffe-data.com>
+
+
+

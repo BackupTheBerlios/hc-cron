@@ -16,7 +16,7 @@
  */
 
 static char rcsid[] =
-  "$Id: database.c,v 1.2 1999/10/20 12:07:45 fbraun Exp $";
+  "$Id: database.c,v 1.3 2000/06/18 09:53:30 fbraun Exp $";
 
 /* vix 26jan87 [RCS has the log]
  */
@@ -48,19 +48,19 @@ load_database (cron_db * old_db)
   user *u, *nu;
 
   Debug (DLOAD, ("[%d] load_database()\n", getpid ()));
-  /* before we start loading any data, do a stat on SPOOL_DIR
+  /* before we start loading any data, do a stat on spool_dir
    * so that if anything changes as of this moment (i.e., before we've
    * cached any of the database), we'll see the changes next time.
    */
-  if (stat (SPOOL_DIR, &statbuf) < OK)
+  if (stat (spool_dir, &statbuf) < OK)
     {
-      log_it ("CRON", getpid (), "STAT FAILED", SPOOL_DIR);
+      log_it ("CRON", getpid (), "STAT FAILED", spool_dir);
       (void) exit (ERROR_EXIT);
     }
 
   /* track system crontab file
    */
-  if (stat (SYSCRONTAB, &syscron_stat) < OK)
+  if (stat (syscrontab, &syscron_stat) < OK)
     syscron_stat.st_mtime = 0;
 
   /* if spooldir's mtime has not changed, we don't need to fiddle with
@@ -88,16 +88,16 @@ load_database (cron_db * old_db)
   if (syscron_stat.st_mtime)
     {
       process_crontab ("root", "*system*",
-		       SYSCRONTAB, &syscron_stat, &new_db, old_db);
+		       syscrontab, &syscron_stat, &new_db, old_db);
     }
 
   /* we used to keep this dir open all the time, for the sake of
    * efficiency.  however, we need to close it in every fork, and
    * we fork a lot more often than the mtime of the dir changes.
    */
-  if (!(dir = opendir (SPOOL_DIR)))
+  if (!(dir = opendir (spool_dir)))
     {
-      log_it ("CRON", getpid (), "OPENDIR FAILED", SPOOL_DIR);
+      log_it ("CRON", getpid (), "OPENDIR FAILED", spool_dir);
       (void) exit (ERROR_EXIT);
     }
 
@@ -244,6 +244,8 @@ process_crontab (char *uname,
       free_user (u);
       log_it (fname, getpid (), "RELOAD", tabname);
     }
+  else
+    log_it (fname, getpid (), "LOAD", tabname);
   u = load_user (crontab_fd, pw, fname);
   if (u != NULL)
     {

@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: misc.c,v 1.4 1999/12/27 18:30:41 fbraun Exp $";
+static char rcsid[] = "$Id: misc.c,v 1.5 2000/06/18 09:53:30 fbraun Exp $";
 
 /* vix 26jan87 [RCS has the rest of the log]
  * vix 30dec86 [written]
@@ -32,8 +32,8 @@ static char rcsid[] = "$Id: misc.c,v 1.4 1999/12/27 18:30:41 fbraun Exp $";
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>
-#if defined(SYSLOG)
-# include <syslog.h>
+#ifdef HAVE_SYSLOG_H
+#include <syslog.h>
 #endif
 
 
@@ -170,18 +170,24 @@ void
 set_cron_uid (void)
 {
 #if HAVE_SETEUID
-  if (seteuid (ROOT_UID) < OK)
-    {
-      perror ("seteuid");
-      exit (ERROR_EXIT);
-    }
+#define SETEUID_FN seteuid
+#define SETEUID_FN_NAME "seteuid"
 #else
-  if (setuid (ROOT_UID) < OK)
+#define SETEUID_FN setuid
+#define SETEUID_FN_NAME "setuid"
+#endif
+
+  if (SETEUID_FN (ROOT_UID) < OK)
     {
-      perror ("setuid");
+      fprintf (stderr, "Test of %s failed for uid %d.  Errno=%s(%d).\n",
+	       SETEUID_FN_NAME, ROOT_UID, strerror (errno), errno);
+      fprintf (stderr, "Cron needs to be able to set the effective userid\n"
+	       "in order to run user cron jobs with the user's privileges\n");
+      if (errno == EPERM)
+	fprintf (stderr, "Cron must run as superuser to perform %s.\n",
+		 SETEUID_FN_NAME);
       exit (ERROR_EXIT);
     }
-#endif /*HAVE_SETEUID */
 }
 
 
@@ -190,55 +196,55 @@ set_cron_cwd (void)
 {
   struct stat sb;
 
-  /* first check for CRONDIR ("/var/cron" or some such)
+  /* first check for 'crondir' ("/var/spool" or some such)
    */
-  if (stat (CRONDIR, &sb) < OK && errno == ENOENT)
+  if (stat (crondir, &sb) < OK && errno == ENOENT)
     {
-      perror (CRONDIR);
-      if (OK == mkdir (CRONDIR, 0700))
+      perror (crondir);
+      if (OK == mkdir (crondir, 0700))
 	{
-	  fprintf (stderr, "%s: created\n", CRONDIR);
-	  stat (CRONDIR, &sb);
+	  fprintf (stderr, "%s: created\n", crondir);
+	  stat (crondir, &sb);
 	}
       else
 	{
-	  fprintf (stderr, "%s: ", CRONDIR);
+	  fprintf (stderr, "%s: ", crondir);
 	  perror ("mkdir");
 	  exit (ERROR_EXIT);
 	}
     }
   if (!(sb.st_mode & S_IFDIR))
     {
-      fprintf (stderr, "'%s' is not a directory, bailing out.\n", CRONDIR);
+      fprintf (stderr, "'%s' is not a directory, bailing out.\n", crondir);
       exit (ERROR_EXIT);
     }
-  if (chdir (CRONDIR) < OK)
+  if (chdir (crondir) < OK)
     {
-      fprintf (stderr, "cannot chdir(%s), bailing out.\n", CRONDIR);
-      perror (CRONDIR);
+      fprintf (stderr, "cannot chdir(%s), bailing out.\n", crondir);
+      perror (crondir);
       exit (ERROR_EXIT);
     }
 
-  /* CRONDIR okay (now==CWD), now look at SPOOL_DIR ("tabs" or some such)
+  /* crondir okay (now==CWD), now look at spool_dir ("tabs" or some such)
    */
-  if (stat (SPOOL_DIR, &sb) < OK && errno == ENOENT)
+  if (stat (spool_dir, &sb) < OK && errno == ENOENT)
     {
-      perror (SPOOL_DIR);
-      if (OK == mkdir (SPOOL_DIR, 0700))
+      perror (spool_dir);
+      if (OK == mkdir (spool_dir, 0700))
 	{
-	  fprintf (stderr, "%s: created\n", SPOOL_DIR);
-	  stat (SPOOL_DIR, &sb);
+	  fprintf (stderr, "%s: created\n", spool_dir);
+	  stat (spool_dir, &sb);
 	}
       else
 	{
-	  fprintf (stderr, "%s: ", SPOOL_DIR);
+	  fprintf (stderr, "%s: ", spool_dir);
 	  perror ("mkdir");
 	  exit (ERROR_EXIT);
 	}
     }
   if (!(sb.st_mode & S_IFDIR))
     {
-      fprintf (stderr, "'%s' is not a directory, bailing out.\n", SPOOL_DIR);
+      fprintf (stderr, "'%s' is not a directory, bailing out.\n", spool_dir);
       exit (ERROR_EXIT);
     }
 }
@@ -249,7 +255,7 @@ set_cron_cwd (void)
  *
  * note: main() calls us twice; once before forking, once after.
  *	we maintain static storage of the file pointer so that we
- *	can rewrite our PID into the PIDFILE after the fork.
+ *	can rewrite our PID into the 'pidfile' after the fork.
  *
  * it would be great if fflush() disassociated the file buffer.
  */
@@ -267,11 +273,9 @@ acquire_daemonlock (int closeflag)
 
   if (!fp)
     {
-      char pidfile[MAX_FNAME];
       char buf[MAX_TEMPSTR];
       int fd, otherpid;
 
-      (void) snprintf (pidfile, MAX_FNAME, PIDFILE, PIDDIR);
       if ((-1 == (fd = open (pidfile, O_RDWR | O_CREAT, 0644)))
 	  || (NULL == (fp = fdopen (fd, "r+"))))
 	{
@@ -437,8 +441,8 @@ in_file (char *string, FILE * file)
 
 
 /* int allowed(char *username)
- *	returns TRUE if (ALLOW_FILE exists and user is listed)
- *	or (DENY_FILE exists and user is NOT listed)
+ *	returns TRUE if (allow_file exists and user is listed)
+ *	or (deny_file exists and user is NOT listed)
  *	or (neither file exists but user=="root" so it's okay)
  */
 int
@@ -450,14 +454,17 @@ allowed (char *username)
   if (!init)
     {
       init = TRUE;
-#if defined(ALLOW_FILE) && defined(DENY_FILE)
-      allow = fopen (ALLOW_FILE, "r");
-      deny = fopen (DENY_FILE, "r");
-      Debug (DMISC, ("allow/deny enabled, %d/%d\n", !!allow, !!deny));
-#else
-      allow = NULL;
-      deny = NULL;
-#endif
+      if (allow_file && deny_file)
+	{
+	  allow = fopen (allow_file, "r");
+	  deny = fopen (deny_file, "r");
+	  Debug (DMISC, ("allow/deny enabled, %d/%d\n", !!allow, !!deny));
+	}
+      else
+	{
+	  allow = NULL;
+	  deny = NULL;
+	}
     }
 
   if (allow)
@@ -465,11 +472,10 @@ allowed (char *username)
   if (deny)
     return (!in_file (username, deny));
 
-#if defined(ALLOW_ONLY_ROOT)
-  return (strcmp (username, ROOT_USER) == 0);
-#else
-  return TRUE;
-#endif
+  if (allow_only_root)
+    return (strcmp (username, ROOT_USER) == 0);
+  else
+    return TRUE;
 }
 
 
@@ -477,91 +483,90 @@ void
 log_it (char *username, int xpid, char *event, char *detail)
 {
   pid_t pid = xpid;
-#if defined(LOG_FILE)
   char *msg;
   time_t now = time ((time_t) 0);
   register struct tm *t = localtime (&now);
-#endif /*LOG_FILE */
   int msg_size;
-#if defined(SYSLOG)
   static int syslog_open = 0;
-#endif
 
-#if defined(LOG_FILE)
-  /* we assume that MAX_TEMPSTR will hold the date, time, &punctuation.
-   */
-  msg_size =
-    strlen (username) + strlen (event) + strlen (detail) + MAX_TEMPSTR;
-  msg = malloc (msg_size);
-  if (msg == NULL)
+  if (log_file)
     {
-      /* damn, out of mem and we did not test that before... */
-      fprintf (stderr, "%s: Run OUT OF MEMORY while %s\n",
-	       ProgramName, __FUNCTION__);
-      return;
-    }
-  if (LogFD < OK)
-    {
-      LogFD = open (LOG_FILE, O_WRONLY | O_APPEND | O_CREAT, 0600);
+      /* we assume that MAX_TEMPSTR will hold the date, time, &punctuation.
+       */
+      msg_size =
+	strlen (username) + strlen (event) + strlen (detail) + MAX_TEMPSTR;
+      msg = malloc (msg_size);
+      if (msg == NULL)
+	{
+	  /* damn, out of mem and we did not test that before... */
+	  fprintf (stderr, "%s: Run OUT OF MEMORY while %s\n",
+		   ProgramName, __FUNCTION__);
+	  return;
+	}
       if (LogFD < OK)
 	{
-	  fprintf (stderr, "%s: can't open log file\n", ProgramName);
-	  perror (LOG_FILE);
+	  LogFD = open (log_file, O_WRONLY | O_APPEND | O_CREAT, 0600);
+	  if (LogFD < OK)
+	    {
+	      fprintf (stderr, "%s: can't open log file\n", ProgramName);
+	      perror (log_file);
+	    }
+	  else
+	    {
+	      (void) fcntl (LogFD, F_SETFD, 1);
+	    }
 	}
-      else
-	{
-	  (void) fcntl (LogFD, F_SETFD, 1);
-	}
-    }
 
-  /* we have to snprintf() it because fprintf() doesn't always write
-   * everything out in one chunk and this has to be atomically appended
-   * to the log file.
-   */
-  snprintf (msg, msg_size, "%s (%02d/%02d-%02d:%02d:%02d-%d) %s (%s)\n",
-	    username,
-	    t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec,
-	    pid, event, detail);
-
-  /* we have to run strlen() because snprintf() returns (char*) on old BSD
-   */
-  if (LogFD < OK || write (LogFD, msg, strlen (msg)) < OK)
-    {
-      if (LogFD >= OK)
-	perror (LOG_FILE);
-      fprintf (stderr, "%s: can't write to log file\n", ProgramName);
-      write (STDERR, msg, strlen (msg));
-    }
-
-  free (msg);
-#endif /*LOG_FILE */
-
-#if defined(SYSLOG)
-  if (!syslog_open)
-    {
-      /* we don't use LOG_PID since the pid passed to us by
-       * our client may not be our own.  therefore we want to
-       * print the pid ourselves.
+      /* we have to snprintf() it because fprintf() doesn't always write
+       * everything out in one chunk and this has to be atomically appended
+       * to the log file.
        */
-# ifdef LOG_DAEMON
-      openlog (ProgramName, LOG_PID, LOG_CRON);
-# else
-      openlog (ProgramName, LOG_PID);
-# endif
-      syslog_open = TRUE;	/* assume openlog success */
+      snprintf (msg, msg_size, "%s (%02d/%02d-%02d:%02d:%02d-%d) %s (%s)\n",
+		username,
+		t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec,
+		pid, event, detail);
+
+      /* we have to run strlen() because snprintf() returns (char*) on old BSD
+       */
+      if (LogFD < OK || write (LogFD, msg, strlen (msg)) < OK)
+	{
+	  if (LogFD >= OK)
+	    perror (log_file);
+	  fprintf (stderr, "%s: can't write to log file\n", ProgramName);
+	  write (STDERR, msg, strlen (msg));
+	}
+
+      free (msg);
     }
 
-  syslog (LOG_INFO, "(%s) %s (%s)\n", username, event, detail);
+#ifdef HAVE_SYSLOG_H
+  if (log_syslog)
+    {
+      if (!syslog_open)
+	{
+	  /* we don't use LOG_PID since the pid passed to us by
+	   * our client may not be our own.  therefore we want to
+	   * print the pid ourselves.
+	   */
+# ifdef LOG_DAEMON
+	  openlog (ProgramName, LOG_PID, LOG_CRON);
+# else
+	  openlog (ProgramName, LOG_PID);
+# endif
+	  syslog_open = TRUE;	/* assume openlog success */
+	}
 
-#endif /*SYSLOG*/
+      syslog (LOG_INFO, "(%s) %s (%s)\n", username, event, detail);
+    }
 #if DEBUGGING
-    if (DebugFlags)
+  if (DebugFlags)
     {
       fprintf (stderr, "log_it: (%s %d) %s (%s)\n",
 	       username, pid, event, detail);
     }
 #endif
 }
+#endif /* HAVE_SYSLOG_H */
 
 
 void

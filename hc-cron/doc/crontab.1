@@ -10,101 +10,132 @@
 .\" * anyone resulting from the use of this software rests entirely with the
 .\" * user.
 .\" *
-.\" * Send bug reports, bug fixes, enhancements, requests, flames, etc., and
-.\" * I'll try to keep a version up to date.  I can be reached as follows:
-.\" * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
-.\" */
+.\" * This manual page was extensively modified by Bryan Henderson 2000.04.29.
 .\"
-.\" $Id: crontab.1,v 1.1 1999/10/16 17:57:28 fbraun Exp $
+.\" $Id: crontab.1,v 1.2 2000/06/18 09:53:30 fbraun Exp $
 .\"
-.TH CRONTAB 1 "02 October 1998"
+.TH CRONTAB 1 "29 April 2000"
 .UC 4
 .SH NAME
 crontab \- maintain crontab files for individual users (V3)
 .SH SYNOPSIS
-crontab [ -u user ] file
+.B crontab 
+.RB [ -u 
+.IR user ] 
+.I file
 .br
-crontab [ -u user ] { -l | -r | -e }
+.B crontab 
+.RB [ -u 
+.IR user ] 
+.RB { -l | -r | -e }
+
 .SH DESCRIPTION
-.I Crontab
-is the program used to install, deinstall or list the tables
+.B crontab
+is the program used to install, deinstall or list crontabs, the tables
 used to drive the
-.IR cron (8)
-daemon in Vixie Cron.  Each user can have their own crontab, and though
-these are files in /var/spool/cron, they are not intended to be edited 
-directly. Individual user's crontabs are in the format described in
-.IR crontab(5) 
-, except that there is no field for the identity as which a given job should
-be run. They are thus of the form:
-.IP
-# min hour day-of-month month day-of-week flag cmd
-.PP
-See
-.IR crontab(5) 
-for details.
-.PP
+.B cron
+system.
+
+Although crontabs are simple files, for security reasons the users to whom
+they belong cannot simply edit them.
+.B crontab
+is installed with the privilege to access and update the crontab files.
+
+The format of a crontab is described in
+.BR crontab (5).
+
+Standard Unix file permissions determine who is able to run
+.BR crontab .
+In addition, If the 
+.I allow
+file exists, then you must be listed therein to be allowed to use
+.BR crontab .
 If the
 .I allow
-file exists, then you must be listed therein in order to be allowed to use
-this command.  If the
-.I allow
-file does not exist but the
+file does not exist, but the
 .I deny
 file does exist, then you must \fBnot\fR be listed in the
 .I deny
-file in order to use this command.  If neither of these files exists, then
-depending on site-dependent configuration parameters, only the super user
-will be allowed to use this command, or all users will be able to use this
-command.
-.PP
-If the
-.I -u
-option is given, it specifies the name of the user whose crontab is to be
-tweaked.  If this option is not given,
-.I crontab
-examines "your" crontab, i.e., the crontab of the person executing the
-command.  Note that
-.IR su (8)
+file to use 
+.BR crontab .
+
+If you specify the
+.B -u
+option, the value is the username of the user whose crontab is to be
+tweaked.  If you don't, 
+.B crontab
+examines ``your'' crontab, i.e., the crontab of the user who invoked
+.BR crontab .
+Note that
+.BR su (8)
 can confuse
-.I crontab
+.B crontab
 and that if you are running inside of
-.IR su (8)
+.BR su (8),
 you should always use the
-.I -u
+.B -u
 option for safety's sake.
-.PP
-The first form of this command is used to install a new crontab from some
-named file or standard input if the pseudo-filename ``-'' is given.
-.PP
+
+The first form of this command is used to install a new crontab 
+or replace an existing one.  
+.I file
+is the file specification of a file whose contents form the crontab.
+The special value
+.B -
+mean Standard Input.
+
 The
-.I -l
-option causes the current crontab to be displayed on standard output.
-.PP
+.B -l
+option tells 
+.B crontab 
+to copy the currently installed crontab to Standard Output.
+
 The
-.I -r
-option causes the current crontab to be removed.
-.PP
+.B -r
+option tells 
+.B crontab
+to delete the currently installed crontab.
+
 The
-.I -e
+.B -e
 option is used to edit the current crontab using the editor specified by
 the \s-1VISUAL\s+1 or \s-1EDITOR\s+1 environment variables.  After you exit
-from the editor, the modified crontab will be installed automatically.
+from the editor, 
+.B crontab 
+installs the modified file, if you made any modifications.
+
+The cron configuration file, /etc/cron.conf, tells 
+.B crontab
+where the installed crontabs live, and identifies the allow and deny
+files.  If the configuration file doesn't exist, the crontabs are in
+/var/spool/cron, and the allow and deny files are /etc/cron.allow and
+/etc/cron.deny, respectively.
+
+.B crontab
+logs its activities to a log file and/or to syslog, depending on the
+settings in the configuration file, /etc/cron.conf.  If the file does
+not exist, 
+.B crontab
+logs to /var/log/cron and not to syslog.
+
 .SH "SEE ALSO"
-crontab(5), cron(8)
+.BR crontab (5), 
+.BR cron (8)
+
 .SH FILES
 .nf
 /etc/cron.allow
 /etc/cron.deny
+/etc/cron.conf
 .fi
+
 .SH STANDARDS
-The
-.I crontab
-command conforms to IEEE Std1003.2-1992 (``POSIX'').  This new command syntax
+.B crontab
+conforms to IEEE Std1003.2-1992 (``POSIX'').  This new command syntax
 differs from previous versions of Vixie Cron, as well as from the classic
 SVR3 syntax.
-.SH DIAGNOSTICS
-A fairly informative usage message appears if you run it with a bad command
-line.
+
 .SH AUTHOR
 .nf
 Paul Vixie <paul@vix.com>
+Modifications by Bryan Henderson <bryanh@giraffe-data.com>

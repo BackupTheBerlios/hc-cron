@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: cron.c,v 1.8 2000/01/15 16:09:52 fbraun Exp $";
+static char rcsid[] = "$Id: cron.c,v 1.9 2000/06/18 09:53:30 fbraun Exp $";
 
 #define	MAIN_PROGRAM
 #include "cron.h"
@@ -33,7 +33,9 @@ static void usage __P ((void)),
 #ifdef USE_SIGCHLD
   sigchld_handler __P ((int)),
 #endif
-  sighup_handler __P ((int)), parse_args __P ((int c, char *v[]));
+  sighup_handler __P ((int)),
+  parse_args __P ((int c, char *v[], int *const p, char **const f));
+
 
 static void
 usage (void)
@@ -47,37 +49,44 @@ int
 main (int argc, char *argv[])
 {
   cron_db database;
-  struct sigaction term_sa, hup_sa;
-#ifdef USE_SIGCHLD
-  struct sigaction chld_sa;
-#endif /* USE_SIGCHLD */
+  char *config_file;		/*Name of our configuration file; NULL if none */
+  struct sigaction my_sigaction;
 
-  ProgramName = argv[0];
+  /* We need to put Program_Name in its own storage because later we will
+   * modify argv[0] in an attempt to change the process name.
+   */
+  ProcessName = argv[0];
+  ProgramName = strdup (argv[0]);
 
 #if HAVE_SETLINEBUF
   setlinebuf (stdout);
   setlinebuf (stderr);
 #endif /*HAVE_SETLINEBUF */
 
-  parse_args (argc, argv);
+  parse_args (argc, argv, &pass_environment, &config_file);
+
+  read_config (config_file, &allow_only_root, &log_syslog, &allow_file,
+	       &deny_file, &crondir, &spool_dir, &log_file, &syscrontab,
+	       &lastrun_file, &pidfile, &mailprog, &mailargs);
 
 #ifdef USE_SIGCHLD
-  memset (&chld_sa, 0, sizeof (chld_sa));
-  chld_sa.sa_handler = sigchld_handler;
-  chld_sa.sa_flags |= SA_NOCLDSTOP | SA_NODEFER;
-  if (sigaction (SIGCHLD, &chld_sa, NULL))
+  memset (&my_sigaction, 0, sizeof (my_sigaction));
+  my_sigaction.sa_handler = sigchld_handler;
+  my_sigaction.sa_flags |= SA_NOCLDSTOP | SA_NODEFER;
+  if (sigaction (SIGCHLD, &my_sigaction, NULL))
     perror ("sigaction");
 #else
   (void) signal (SIGCHLD, SIG_IGN);
 #endif
-  memset (&term_sa, 0, sizeof (term_sa));
-  term_sa.sa_handler = sigterm_handler;
-  if (sigaction (SIGTERM, &term_sa, NULL))
+
+  memset (&my_sigaction, 0, sizeof (my_sigaction));
+  my_sigaction.sa_handler = sigterm_handler;
+  if (sigaction (SIGTERM, &my_sigaction, NULL))
     perror ("sigaction");
 
-  memset (&hup_sa, 0, sizeof (hup_sa));
-  hup_sa.sa_handler = sighup_handler;
-  if (sigaction (SIGHUP, &hup_sa, NULL))
+  memset (&my_sigaction, 0, sizeof (my_sigaction));
+  my_sigaction.sa_handler = sighup_handler;
+  if (sigaction (SIGHUP, &my_sigaction, NULL))
     perror ("sigaction");
 
   acquire_daemonlock (0);
@@ -85,7 +94,8 @@ main (int argc, char *argv[])
   set_cron_cwd ();
 
 #if HAVE_SETENV
-  setenv ("PATH", _PATH_DEFPATH, 1);
+  if (!pass_environment)
+    setenv ("PATH", _PATH_DEFPATH, 1);
 #endif
 
   /* if there are no debug flags turned on, fork as a daemon should. */
@@ -296,6 +306,7 @@ sigchld_handler (int x)
 	  Debug (DPROC,
 		 ("[%d] sigchld...pid #%d died, stat=%d\n",
 		  getpid (), pid, WEXITSTATUS (waiter)));
+	  save_lastrun (CatchUpList);
 	}
     }
 }
@@ -310,20 +321,36 @@ sighup_handler (int x)
 
 
 static void
-parse_args (int argc, char *argv[])
+parse_args (int argc, char *argv[], int *const pass_environment_p,
+	    char **const config_file_p)
 {
   int argch;
 
-  while (EOF != (argch = getopt (argc, argv, "x:")))
+  /*Set defaults */
+  *pass_environment_p = 0;
+
+#ifdef CONFIG_FILE
+  *config_file_p = CONFIG_FILE;
+#else
+  *config_file_p = NULL;
+#endif
+
+  while (EOF != (argch = getopt (argc, argv, "ef:x:")))
     {
       switch (argch)
 	{
-	default:
-	  usage ();
+	case 'f':
+	  *config_file_p = optarg;
+	  break;
+	case 'e':
+	  pass_environment = 1;
+	  break;
 	case 'x':
 	  if (!set_debug_flags (optarg))
 	    usage ();
 	  break;
+	default:
+	  usage ();
 	}
     }
 }

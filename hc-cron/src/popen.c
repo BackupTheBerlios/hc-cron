@@ -23,7 +23,7 @@
  * globbing stuff since we don't need it.  also execvp instead of execv.
  */
 
-static char rcsid[] = "$Id: popen.c,v 1.4 1999/12/27 18:30:41 fbraun Exp $";
+static char rcsid[] = "$Id: popen.c,v 1.5 2000/06/18 09:53:31 fbraun Exp $";
 static char sccsid[] = "@(#)popen.c	5.7 (Berkeley) 2/14/89";
 
 #include "cron.h"
@@ -40,12 +40,14 @@ static pid_t *pids;
 static int fds;
 
 FILE *
-cron_popen (char *program, char *type, entry * e)
+cron_popen (const char *const program, char *type, entry * e)
 {
   register char *cp;
   FILE *iop;
   int argc, pdes[2];
   pid_t pid;
+  char *tokenized_program;
+  /* Same thing as 'program', only we insert nulls between tokens */
   char *argv[100];
 #if WANT_GLOBBING
   char **pop, *vv[2];
@@ -69,7 +71,8 @@ cron_popen (char *program, char *type, entry * e)
     return (NULL);
 
   /* break up string into pieces */
-  for (argc = 0, cp = program;; cp = NULL)
+  tokenized_program = strdup (program);	/* initial value */
+  for (argc = 0, cp = tokenized_program;; cp = NULL)
     if (!(argv[argc++] = strtok (cp, " \t\n")))
       break;
 
@@ -156,6 +159,7 @@ pfree:
       free ((char *) argv[argc]);
     }
 #endif
+  free (tokenized_program);
   return (iop);
 }
 

@@ -17,7 +17,7 @@
 
 /* cron.h - header for vixie's cron
  *
- * $Id: cron.h,v 1.5 1999/12/19 11:28:40 fbraun Exp $
+ * $Id: cron.h,v 1.6 2000/06/18 09:53:31 fbraun Exp $
  *
  * vix 14nov88 [rest of log is in RCS]
  * vix 14jan87 [0 or 7 can be sunday; thanks, mwm@berkeley]
@@ -72,7 +72,7 @@
 #define	MAX_FNAME	100	/* max length of internally generated fn */
 #define	MAX_COMMAND	1000	/* max length of internally generated cmd */
 #define	MAX_ENVSTR	1000	/* max length of envvar=value\0 strings */
-#define	MAX_TEMPSTR	100	/* obvious */
+#define	MAX_TEMPSTR	300	/* obvious */
 #define	MAX_UNAME	20	/* max length of username, should be overkill */
 #define	ROOT_UID	0	/* don't change this, it really must be root */
 #define	ROOT_USER	"root"	/* ditto */
@@ -88,8 +88,9 @@
 #define	DMISC		0x0020	/* misc debug mask */
 #define	DTEST		0x0040	/* test mode: don't execute any commands */
 #define	DBIT		0x0080	/* bit twiddling shown (long) */
+#define DCONF       0x0100	/* show invocation/configuration options */
 
-#define	CRON_TAB(u)	"%s/%s", SPOOL_DIR, u
+#define	CRON_TAB(u)	"%s/%s", spool_dir, u
 #define	REG		register
 #define	PPC_NULL	((char **)NULL)
 
@@ -234,7 +235,14 @@ void set_cron_uid __P ((void)),
   log_it __P ((char *, int, char *, char *)), log_close __P ((void)),
 		/* next five added by hcl */
   build_cu_list __P ((cron_db *, list_cu **)),
-  save_lastrun __P ((list_cu *)), init_diskload __P ((void));
+  save_lastrun __P ((list_cu *)), init_diskload __P ((void)),
+  read_config __P ((const char config_file[], int *allow_only_root_p,
+		    int *const log_syslog_p, char **const allow_file_p,
+		    char **const deny_file_p, char **const crondir_p,
+		    char **const spool_dir_p, char **const log_file_p,
+		    char **const syscrontab_p, char **const lastrun_file_p,
+		    char **const pidfile_p, char **const mailprog_p,
+		    char **const mailargs_p));
 
 RETSIGTYPE sigterm_handler __P ((int));
 
@@ -263,7 +271,7 @@ user *load_user __P ((int, struct passwd *, char *)),
 
 entry *load_entry __P ((FILE *, void (*)(), struct passwd *, char **));
 
-FILE *cron_popen __P ((char *, char *, entry *));
+FILE *cron_popen __P ((const char *const, char *, entry *));
 
 				/* in the C tradition, we only create
 				 * variables for the main program, just
@@ -287,7 +295,24 @@ char *DowNames[] = {
   NULL
 };
 
+char *ProcessName;
 char *ProgramName;
+
+/* Information from the command line and config file */
+int pass_environment;		/* boolean */
+int allow_only_root;		/* boolean */
+int log_syslog;			/* boolean */
+char *allow_file;
+char *deny_file;
+char *crondir;
+char *spool_dir;
+char *log_file;
+char *pidfile;
+char *syscrontab;
+char *lastrun_file;
+char *mailprog;
+char *mailargs;
+
 int LineNumber;
 int diskavg_file;
 char diskavg_matrix[256];
@@ -298,18 +323,32 @@ job *jhead = NULL, *jtail = NULL;
 # if DEBUGGING
 int DebugFlags;
 char *DebugFlagNames[] = {	/* sync with #defines */
-  "ext", "sch", "proc", "pars", "load", "misc", "test", "bit",
+  "ext", "sch", "proc", "pars", "load", "misc", "test", "bit", "conf",
   NULL				/* NULL must be last element */
 };
 
-# endif				/* DEBUGGING */
+# endif	/* DEBUGGING */
 #else /*MAIN_PROGRAM */
-extern char *copyright[], *MonthNames[], *DowNames[], *ProgramName;
+extern char *copyright[], *MonthNames[], *DowNames[], *ProcessName,
+  *ProgramName;
+extern int pass_environment;	/* boolean */
+extern int allow_only_root;	/* boolean */
+extern int log_syslog;		/* boolean */
+extern char *allow_file;
+extern char *deny_file;
+extern char *crondir;
+extern char *spool_dir;
+extern char *log_file;
+extern char *pidfile;
+extern char *syscrontab;
+extern char *lastrun_file;
+extern char *mailprog;
+extern char *mailargs;
 extern int LineNumber;
 extern time_t TargetTime;
 extern list_cu *CatchUpList;
 # if DEBUGGING
 extern int DebugFlags;
 extern char *DebugFlagNames[];
-# endif				/* DEBUGGING */
+# endif	/* DEBUGGING */
 #endif /*MAIN_PROGRAM */
