@@ -16,9 +16,10 @@
  */
 
 static char rcsid[] =
-  "$Id: do_command.c,v 1.3 2000/06/18 09:53:30 fbraun Exp $";
+  "$Id: do_command.c,v 1.4 2000/06/18 10:26:40 fbraun Exp $";
 
 #include "cron.h"
+#include "errno.h"
 #include <sys/signal.h>
 #ifdef HAVE_SYSLOG_H
 #include <syslog.h>

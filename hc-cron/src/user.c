@@ -15,12 +15,12 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: user.c,v 1.4 2000/06/18 09:53:31 fbraun Exp $";
+static char rcsid[] = "$Id: user.c,v 1.5 2000/06/18 10:26:40 fbraun Exp $";
 
 /* vix 26jan87 [log is in RCS file]
  */
 
-
+#include <unistd.h>		/*for cahr ** environ */
 #include "cron.h"
 
 void
@@ -70,7 +70,13 @@ load_user (int crontab_fd, struct passwd *pw,	/* NULL implies syscrontab */
   if (pass_environment)
     {
       char envstr[MAX_ENVSTR + 1];
-      envp = env_copy (environ);	/* Start with our own environment */
+      /* Start with our own environment */
+#ifdef __USE_GNU
+      envp = env_copy (environ);
+#else
+      envp = env_copy (__environ);
+#endif /*__USE_GNU */
+
       /* Override our HOME with user's home directory per passwd file */
       snprintf (envstr, MAX_ENVSTR, "HOME=%s", pw->pw_dir);
       envp = env_set (envp, envstr);

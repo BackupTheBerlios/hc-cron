@@ -6,7 +6,7 @@
  * 
  * This should go together with cron by Paul Vixie
  */
-static char rcsid[] = "$Id: hccron.c,v 1.8 2000/06/18 09:53:30 fbraun Exp $";
+static char rcsid[] = "$Id: hccron.c,v 1.9 2000/06/18 10:26:40 fbraun Exp $";
 
 #include <sys/stat.h>		/* for stat() and open() */
 #include <unistd.h>		/* for stat() and close() */
@@ -43,7 +43,7 @@ build_cu_list (cron_db * db, list_cu ** cul_head)
   reboot = time (NULL);
   *cul_head = NULL;
 
-  if (stat (lastrun_flie, &lr) != OK)
+  if (stat (lastrun_file, &lr) != OK)
     {
       Debug (DLOAD, ("could not find lastrun file!\n"));
     }
@@ -141,7 +141,7 @@ build_cu_list (cron_db * db, list_cu ** cul_head)
 	}			/* for *current */
       snprintf (msg, MAX_MSGLEN, "%d jobs to catch up", counter);
       log_it ("CRON", getpid (), "STARTUP", msg);
-    }				/* if(-f lastrun_flie) else */
+    }				/* if(-f lastrun_file) else */
 }
 
 /* entry:	cul - chronologically sorted catch up list
@@ -201,16 +201,17 @@ save_lastrun (list_cu * cul)
     log_it ("CRON", getpid (), "TIME save", msg);
 #endif
 
-  file = open (lastrun_flie, (O_WRONLY | O_CREAT),
+  file = open (lastrun_file, (O_WRONLY | O_CREAT),
 	       (S_IRUSR | S_IWUSR | S_IRGRP));
   if (file != -1)
     {
       close (file);
-      utime (lastrun_flie, &utbuf);
+      utime (lastrun_file, &utbuf);
     }
 }
 
-RETSIGTYPE sigterm_handler (int x)
+RETSIGTYPE
+sigterm_handler (int x)
 {
   save_lastrun (CatchUpList);
   log_close ();

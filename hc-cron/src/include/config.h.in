@@ -3,17 +3,8 @@
 /* Define to empty if the keyword does not work.  */
 #undef const
 
-/* Define for DGUX with <sys/dg_sys_info.h>.  */
-#undef DGUX
-
-/* Define if the `getloadavg' function needs to be run setuid or setgid.  */
-#undef GETLOADAVG_PRIVILEGED
-
 /* Define to `int' if <sys/types.h> doesn't define.  */
 #undef gid_t
-
-/* Define if your system has its own `getloadavg' function.  */
-#undef HAVE_GETLOADAVG
 
 /* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
 #undef HAVE_SYS_WAIT_H
@@ -23,12 +14,6 @@
 
 /* Define if you have <vfork.h>.  */
 #undef HAVE_VFORK_H
-
-/* Define if your struct nlist has an n_un member.  */
-#undef NLIST_NAME_UNION
-
-/* Define if you have <nlist.h>.  */
-#undef NLIST_STRUCT
 
 /* Define to `int' if <sys/types.h> doesn't define.  */
 #undef pid_t
@@ -42,9 +27,6 @@
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
 
-/* Define on System V Release 4.  */
-#undef SVR4
-
 /* Define if you can safely include both <sys/time.h> and <time.h>.  */
 #undef TIME_WITH_SYS_TIME
 
@@ -53,13 +35,6 @@
 
 /* Define to `int' if <sys/types.h> doesn't define.  */
 #undef uid_t
-
-/* Define for Encore UMAX.  */
-#undef UMAX
-
-/* Define for Encore UMAX 4.3 that has <inq_status/cpustats.h>
-   instead of <sys/cpustats.h>.  */
-#undef UMAX4_3
 
 /* Define vfork as fork if vfork does not work.  */
 #undef vfork
@@ -78,9 +53,6 @@
 
 /* Define if you have the gethostname function.  */
 #undef HAVE_GETHOSTNAME
-
-/* Define if you have the getloadavg function.  */
-#undef HAVE_GETLOADAVG
 
 /* Define if you have the gettimeofday function.  */
 #undef HAVE_GETTIMEOFDAY
@@ -136,9 +108,6 @@
 /* Define if you have the <limits.h> header file.  */
 #undef HAVE_LIMITS_H
 
-/* Define if you have the <mach/mach.h> header file.  */
-#undef HAVE_MACH_MACH_H
-
 /* Define if you have the <ndir.h> header file.  */
 #undef HAVE_NDIR_H
 
@@ -165,9 +134,6 @@
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
-
-/* Define if you have the dgc library (-ldgc).  */
-#undef HAVE_LIBDGC
 
 /* Name of package */
 #undef PACKAGE
