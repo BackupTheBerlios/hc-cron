@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: job.c,v 1.3 1999/12/19 11:28:33 fbraun Exp $";
+static char rcsid[] = "$Id: job.c,v 1.4 1999/12/19 16:48:32 fbraun Exp $";
 
 #include "cron.h"
 #include <unistd.h>
@@ -70,11 +70,23 @@ int
 job_runqueue (void)
 {
   job *j, *jn;
-  int idle = TRUE;
+  int idle;
   int run = 0;
 
-  idle = (getloadavg () <= MAXLOADAVG
-	  && get_diskload (diskavg_file, diskavg_matrix) <= MAX_DISKLOAD);
+  idle = TRUE;
+  if (getloadavg () > MAXLOADAVG)
+     {
+	idle = FALSE;
+	Debug (DSCH, "The CPU is busy. Won't run RUN_ONLY_ILDE jobs");
+     } 
+   else 
+     {
+	if (get_diskload (diskavg_file, diskavg_matrix) > MAX_DISKLOAD)
+	  {
+	     idle = FALSE;
+	     Debug (DSCH, "The harddisk is busy. Won't run RUN_ONLY_IDLE jobs");
+	  };
+     };
 
   for (j = jhead; j; j = jn)
     {
