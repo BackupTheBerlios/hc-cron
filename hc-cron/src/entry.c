@@ -16,7 +16,7 @@
  */
 
 static char rcsid[] =
-  "$Id: entry.c,v 1.1 1999/10/16 17:57:28 fbraun Exp $";
+  "$Id: entry.c,v 1.2 1999/12/27 18:30:41 fbraun Exp $";
 
 /* vix 26jan87 [RCS'd; rest of log is in RCS file]
  * vix 01jan87 [added line-level error recovery]
@@ -276,10 +276,13 @@ load_entry (FILE * file,
     }
   snprintf (envstr, MAX_ENVSTR, "%s=%s", "LOGNAME", pw->pw_name);
   e->envp = env_set (e->envp, envstr);
-#if defined(BSD)
+/*#if defined(BSD)
+ * we only set the environment var named "USER" under BSD-like systems
+ * why?
+ */
   snprintf (envstr, MAX_ENVSTR, "%s=%s", "USER", pw->pw_name);
   e->envp = env_set (e->envp, envstr);
-#endif
+/*#endif*/
 
   /* now look whether there is a *, ! or \ for flags
    * '*' will catch up every occurence during downtime,

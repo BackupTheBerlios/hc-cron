@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: crontab.c,v 1.3 1999/11/12 16:18:50 fbraun Exp $";
+static char rcsid[] = "$Id: crontab.c,v 1.4 1999/12/27 18:30:41 fbraun Exp $";
 
 /* crontab - install and manage per-user crontab files
  * vix 02may87 [RCS has the rest of the log]
@@ -89,9 +89,9 @@ main (int argc, char *argv[])
   setlocale (LC_ALL, "");
 #endif
 
-#if defined(BSD)
+#if HAVE_SETLINEBUF
   setlinebuf (stderr);
-#endif
+#endif /*HAVE_SETLINEBUF */
   parse_args (argc, argv);	/* sets many globals, opens a file */
   set_cron_uid ();
   set_cron_cwd ();

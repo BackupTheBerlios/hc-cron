@@ -97,8 +97,17 @@
 /* Define if you have the setenv function.  */
 #undef HAVE_SETENV
 
+/* Define if you have the seteuid function.  */
+#undef HAVE_SETEUID
+
+/* Define if you have the setlinebuf function.  */
+#undef HAVE_SETLINEBUF
+
 /* Define if you have the setpgrp function.  */
 #undef HAVE_SETPGRP
+
+/* Define if you have the setreuid function.  */
+#undef HAVE_SETREUID
 
 /* Define if you have the setsid function.  */
 #undef HAVE_SETSID

@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: misc.c,v 1.3 1999/11/21 09:03:19 fbraun Exp $";
+static char rcsid[] = "$Id: misc.c,v 1.4 1999/12/27 18:30:41 fbraun Exp $";
 
 /* vix 26jan87 [RCS has the rest of the log]
  * vix 30dec86 [written]
@@ -169,7 +169,7 @@ set_debug_flags (char *flags)
 void
 set_cron_uid (void)
 {
-#if defined(BSD) || defined(POSIX)
+#if HAVE_SETEUID
   if (seteuid (ROOT_UID) < OK)
     {
       perror ("seteuid");
@@ -181,7 +181,7 @@ set_cron_uid (void)
       perror ("setuid");
       exit (ERROR_EXIT);
     }
-#endif
+#endif /*HAVE_SETEUID */
 }
 
 
@@ -680,7 +680,19 @@ arpadate (time_t * clock)
 }
 #endif /*MAIL_DATE */
 
-#ifdef HAVE_SAVED_SUIDS
+#ifdef HAVE_SETREUID
+int
+swap_uids ()
+{
+  return setreuid (geteuid (), getuid ());
+}
+
+int
+swap_uids_back ()
+{
+  return swap_uids ();
+}
+#else /*HAVE_SETREUID */
 static int save_euid;
 int
 swap_uids ()
@@ -694,16 +706,4 @@ swap_uids_back ()
 {
   return seteuid (save_euid);
 }
-#else /*HAVE_SAVED_UIDS */
-int
-swap_uids ()
-{
-  return setreuid (geteuid (), getuid ());
-}
-
-int
-swap_uids_back ()
-{
-  return swap_uids ();
-}
-#endif /*HAVE_SAVED_UIDS */
+#endif /*HAVE_SETREUID */

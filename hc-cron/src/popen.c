@@ -23,7 +23,7 @@
  * globbing stuff since we don't need it.  also execvp instead of execv.
  */
 
-static char rcsid[] = "$Id: popen.c,v 1.3 1999/11/12 16:18:50 fbraun Exp $";
+static char rcsid[] = "$Id: popen.c,v 1.4 1999/12/27 18:30:41 fbraun Exp $";
 static char sccsid[] = "@(#)popen.c	5.7 (Berkeley) 2/14/89";
 
 #include "cron.h"
@@ -122,7 +122,7 @@ cron_popen (char *program, char *type, entry * e)
 
       /* Lose root privilege */
       setgid (e->gid);
-#if defined(BSD) || defined(POSIX)
+#if HAVE_INITGROUPS
       initgroups (env_get ("LOGNAME", e->envp), e->gid);
 #endif
       setuid (e->uid);

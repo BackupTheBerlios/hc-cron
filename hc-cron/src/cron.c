@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: cron.c,v 1.6 1999/12/19 11:28:33 fbraun Exp $";
+static char rcsid[] = "$Id: cron.c,v 1.7 1999/12/27 18:30:41 fbraun Exp $";
 
 #define	MAIN_PROGRAM
 #include "cron.h"
@@ -54,10 +54,10 @@ main (int argc, char *argv[])
 
   ProgramName = argv[0];
 
-#if defined(BSD)
+#if HAVE_SETLINEBUF
   setlinebuf (stdout);
   setlinebuf (stderr);
-#endif
+#endif /*HAVE_SETLINEBUF */
 
   parse_args (argc, argv);
 
