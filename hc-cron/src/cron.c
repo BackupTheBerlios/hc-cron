@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: cron.c,v 1.7 1999/12/27 18:30:41 fbraun Exp $";
+static char rcsid[] = "$Id: cron.c,v 1.8 2000/01/15 16:09:52 fbraun Exp $";
 
 #define	MAIN_PROGRAM
 #include "cron.h"
@@ -48,7 +48,7 @@ main (int argc, char *argv[])
 {
   cron_db database;
   struct sigaction term_sa, hup_sa;
-#if USE_SIGCHLD
+#ifdef USE_SIGCHLD
   struct sigaction chld_sa;
 #endif /* USE_SIGCHLD */
 

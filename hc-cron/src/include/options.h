@@ -1,5 +1,5 @@
 /*
- * $Id: options.h,v 1.3 1999/10/20 12:07:46 fbraun Exp $
+ * $Id: options.h,v 1.4 2000/01/15 16:09:59 fbraun Exp $
  */
 
 #if HAVE_PATHS_H
@@ -106,7 +106,10 @@
 #ifndef DEBUGGING
 #define DEBUGGING 0		/* 1 or 0 -- do you want debugging code built in? */
 #endif
-
+#define USE_SIGCHLD 1	/* use the SIGCHLD signal to co-ordinate running of
+			 * the cron process's children (not the grandchildren -
+			 * those are waited for explicitly.
+			 */
 			/*
 			 * choose one of these MAILCMD commands. Use
 			 * /bin/mail for speed; it makes biff bark but doesn't
