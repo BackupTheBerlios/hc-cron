@@ -10,8 +10,8 @@
 //#include "cron.h"
 //#include "options.h"
 
-#define BUF_OFFSET 512 // offset in /proc/stat where we start looking for disk_io
-#define BUF_LEN 512 // max len of disk_io info
+#define BUF_OFFSET 128 // offset in /proc/stat where we start looking for disk_io
+#define BUF_LEN 1023 // max len of disk_io info
 #define DISK_STRING " (3,0):("
 #define DISK_STRING_LEN 8
 
@@ -27,7 +27,7 @@ extern unsigned char diskavg_matrix[];
  */
 
 static char rcsid[] =
-  "$Id: diskload.c,v 1.11 2001/06/03 02:56:01 Hazzl Exp $";
+  "$Id: diskload.c,v 1.12 2002/04/13 19:17:35 Hazzl Exp $";
 
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
@@ -87,7 +87,7 @@ search (const unsigned char *buffer, const size_t buf_len,
 int
 get_diskload (int fd, char *matrix)
 {
-  char buffer[BUF_LEN + 1];
+  static char buffer[BUF_LEN+1];
   char *found;
   static time_t time_store = 0;
   time_t time_tmp;
