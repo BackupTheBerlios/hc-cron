@@ -8,13 +8,14 @@ getloadavg (void)
 {
 #ifdef LOADAVG_FILE
   int file;
-  char load[5];
+  char load[6];
 
   if ((file = open (LOADAVG_FILE, O_RDONLY)))
     {
-      read (file, load, 4);
-      load[4] = 0;
-      Debug (DMISC, ("load average: %s", load)) close (file);
+      read (file, load, 5);
+      load[5] = 0;
+      Debug (DMISC, ("load average: %s", load));
+      close (file);
       return strtod (load);
     }
   else

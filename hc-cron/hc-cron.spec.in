@@ -4,7 +4,7 @@ Version: @VERSION@
 Release: 1
 Copyright: GPL
 Group: System Environment/Base
-Source0: ftp://metalab.unc.edu/pub/Linux/system/daemons/hc-cron-0.13.tar.gz
+Source0: ftp://metalab.unc.edu/pub/Linux/system/daemons/hc-cron-@VERSION@.tar.gz
 Buildroot: /var/tmp/%{name}-root
 Obsoletes: vixie-cron
 Prereq: /sbin/chkconfig

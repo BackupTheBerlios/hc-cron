@@ -15,13 +15,11 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] =
-  "$Id: misc.c,v 1.2 1999/11/12 16:18:50 fbraun Exp $";
+static char rcsid[] = "$Id: misc.c,v 1.3 1999/11/21 09:03:19 fbraun Exp $";
 
 /* vix 26jan87 [RCS has the rest of the log]
  * vix 30dec86 [written]
  */
-
 
 #include "cron.h"
 #if HAVE_SYS_TIME_H

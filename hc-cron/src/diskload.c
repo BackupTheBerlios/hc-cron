@@ -7,8 +7,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "options.h"
 #include "cron.h"
+#include "options.h"
 
 #define BUF_LEN 128
 
@@ -23,7 +23,7 @@
  */
 
 static char rcsid[] =
-  "$Id: diskload.c,v 1.5 1999/11/12 16:18:50 fbraun Exp $";
+  "$Id: diskload.c,v 1.6 1999/11/21 09:03:19 fbraun Exp $";
 
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
@@ -132,7 +132,7 @@ wait_diskload (void)
   while (load > MAX_DISKLOAD)
     {
       log_it ("CRON", getpid (), "STARTUP", "waiting for busy disk");
-      sleep (10);
+      sleep (30);
       load = get_diskload (da_file, search);
       Debug (DMISC, ("diskload: %d irq/sec\n", load));
     };

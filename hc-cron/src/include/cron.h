@@ -17,7 +17,7 @@
 
 /* cron.h - header for vixie's cron
  *
- * $Id: cron.h,v 1.3 1999/10/20 12:07:45 fbraun Exp $
+ * $Id: cron.h,v 1.4 1999/11/21 09:03:19 fbraun Exp $
  *
  * vix 14nov88 [rest of log is in RCS]
  * vix 14jan87 [0 or 7 can be sunday; thanks, mwm@berkeley]
@@ -25,6 +25,10 @@
  */
 
 /* reorder these #include's at your peril */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <sys/types.h>
 #include <sys/param.h>
