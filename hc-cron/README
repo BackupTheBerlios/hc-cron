@@ -1,6 +1,15 @@
 
-Home Computer Cron V0.10
-------------------------
+Home Computer Cron
+------------------
+
+*********** WARINING **** WARINING **** WARNING **************************
+
+This version is a development release! The stable version of this program is
+hc-cron 0.13! Don't expect everything to work without glitches out-of-the-box.
+Please report any bugs you encounter or make other suggestions to improve
+this program.
+
+**************************************************************************
 
 Does your computer run 24 hours a day? Are you establishing uptime records
 that would scare users of other OS's? If so, this program is not for you.
@@ -32,5 +41,3 @@ running this program (or looking at the source :), I refuse any liability.
 My additions to the code are placed under the GNU General Public License
 (Version 2 or later), please see the file COPYING for details.
 
-Felix Braun <fbraun@atdot.org>
-05 March 1998

@@ -15,8 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] =
-  "$Id: crontab.c,v 1.2 1999/10/20 12:07:45 fbraun Exp $";
+static char rcsid[] = "$Id: crontab.c,v 1.3 1999/11/12 16:18:50 fbraun Exp $";
 
 /* crontab - install and manage per-user crontab files
  * vix 02may87 [RCS has the rest of the log]
@@ -246,7 +245,8 @@ parse_args (int argc, char *argv[])
     }
 
   Debug (DMISC, ("user=%s, file=%s, option=%s\n",
-		 User, Filename, Options[(int) Option]))}
+		 User, Filename, Options[(int) Option]));
+}
 
 
 static void

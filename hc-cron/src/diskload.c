@@ -22,7 +22,8 @@
  * 	  non catch up jobs that occur while the disk is busy will be missed
  */
 
-static char rcsid[]="$Id: diskload.c,v 1.4 1999/10/29 07:24:20 fbraun Exp $";
+static char rcsid[] =
+  "$Id: diskload.c,v 1.5 1999/11/12 16:18:50 fbraun Exp $";
 
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
@@ -55,8 +56,8 @@ search (char *buffer,
 	size_t buf_len, char *string, size_t str_len, char *matrix)
 {
   size_t pos;
-   
-  pos = str_len-1;
+
+  pos = str_len - 1;
   while (pos < buf_len)
     {
       if (matrix[(int) buffer[pos]])
@@ -125,7 +126,7 @@ wait_diskload (void)
    * function is called only once (for the time being at least)
    */
   (void) get_diskload (da_file, search);
-  sleep(2);
+  sleep (2);
   load = get_diskload (da_file, search);
   Debug (DMISC, ("diskload: %d irq/sec\n", load));
   while (load > MAX_DISKLOAD)

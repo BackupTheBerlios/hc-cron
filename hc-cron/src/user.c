@@ -15,8 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] =
-  "$Id: user.c,v 1.2 1999/10/20 12:07:45 fbraun Exp $";
+static char rcsid[] = "$Id: user.c,v 1.3 1999/11/12 16:18:50 fbraun Exp $";
 
 /* vix 26jan87 [log is in RCS file]
  */

@@ -16,7 +16,7 @@
  */
 
 static char rcsid[] =
-  "$Id: misc.c,v 1.1 1999/10/16 17:57:28 fbraun Exp $";
+  "$Id: misc.c,v 1.2 1999/11/12 16:18:50 fbraun Exp $";
 
 /* vix 26jan87 [RCS has the rest of the log]
  * vix 30dec86 [written]
@@ -324,7 +324,7 @@ get_char (FILE * file)
 	{
 	  ch = getc (file);
 	}
-      while ((ch = ' ') || (ch = '\t'));
+      while ((ch == ' ') || (ch == '\t'));
 
       /* ch now holds the first non-whitespace character. Push that back
        * into the stream and set ch = ' '
@@ -690,6 +690,7 @@ swap_uids ()
   save_euid = geteuid ();
   return seteuid (getuid ());
 }
+
 int
 swap_uids_back ()
 {
@@ -701,6 +702,7 @@ swap_uids ()
 {
   return setreuid (geteuid (), getuid ());
 }
+
 int
 swap_uids_back ()
 {

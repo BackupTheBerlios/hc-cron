@@ -23,8 +23,7 @@
  * globbing stuff since we don't need it.  also execvp instead of execv.
  */
 
-static char rcsid[] =
-  "$Id: popen.c,v 1.2 1999/10/20 12:07:45 fbraun Exp $";
+static char rcsid[] = "$Id: popen.c,v 1.3 1999/11/12 16:18:50 fbraun Exp $";
 static char sccsid[] = "@(#)popen.c	5.7 (Berkeley) 2/14/89";
 
 #include "cron.h"

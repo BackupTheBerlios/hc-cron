@@ -7,7 +7,7 @@
  * This should go together with cron by Paul Vixie
  */
 static char rcsid[] =
-  "$Id: hccron.c,v 1.1 1999/10/16 17:57:28 fbraun Exp $";
+  "$Id: hccron.c,v 1.2 1999/11/12 16:18:50 fbraun Exp $";
 
 #include <sys/stat.h>		/* for stat() and open() */
 #include <unistd.h>		/* for stat() and close() */
@@ -195,8 +195,7 @@ save_lastrun (list_cu * cul)
     }
 }
 
-RETSIGTYPE
-sigterm_handler (int x)
+RETSIGTYPE sigterm_handler (int x)
 {
   log_close ();
   save_lastrun (CatchUpList);

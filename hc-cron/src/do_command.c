@@ -16,7 +16,7 @@
  */
 
 static char rcsid[] =
-  "$Id: do_command.c,v 1.1 1999/10/16 17:57:28 fbraun Exp $";
+  "$Id: do_command.c,v 1.2 1999/11/12 16:18:50 fbraun Exp $";
 
 #include "cron.h"
 #include <sys/signal.h>
@@ -415,7 +415,7 @@ child_process (entry * e, user * u)
 		     usernm, first_word (hostname, "."), e->cmd);
 # if defined(MAIL_DATE)
 	    fprintf (mail, "Date: %s\n", arpadate (&TargetTime));
-# endif				/* MAIL_DATE */
+# endif	/* MAIL_DATE */
 	    for (env = e->envp; *env; env++)
 	      fprintf (mail, "X-Cron-Env: <%s>\n", *env);
 	    fprintf (mail, "\n");

@@ -1,3 +1,6 @@
+hc-cron 0.80
+12/NOV/1999	fixed stupid bug in get_char() that would cause an infinite 
+		loop
 20/OCT/1999	added diskload.c to wait for disk activity to settle down
 		before doing any real work.
 hc-cron 0.80alpha - not public
