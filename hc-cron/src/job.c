@@ -15,7 +15,7 @@
  * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
  */
 
-static char rcsid[] = "$Id: job.c,v 1.7 2000/06/18 09:53:30 fbraun Exp $";
+static char rcsid[] = "$Id: job.c,v 1.8 2001/06/03 02:56:01 Hazzl Exp $";
 
 #include "cron.h"
 #include <unistd.h>
@@ -25,7 +25,7 @@ static char rcsid[] = "$Id: job.c,v 1.7 2000/06/18 09:53:30 fbraun Exp $";
 
 extern job *jhead, *jtail;
 extern int diskavg_file;
-extern char diskavg_matrix[];
+extern unsigned char diskavg_matrix[];
 
 void
 job_add (register entry * e, register user * u)

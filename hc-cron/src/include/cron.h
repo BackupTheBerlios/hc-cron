@@ -17,7 +17,7 @@
 
 /* cron.h - header for vixie's cron
  *
- * $Id: cron.h,v 1.7 2001/03/10 19:26:15 Hazzl Exp $
+ * $Id: cron.h,v 1.8 2001/06/03 02:56:01 Hazzl Exp $
  *
  * vix 14nov88 [rest of log is in RCS]
  * vix 14jan87 [0 or 7 can be sunday; thanks, mwm@berkeley]
@@ -315,7 +315,7 @@ char *mailargs;
 
 int LineNumber;
 int diskavg_file;
-char diskavg_matrix[256];
+unsigned char diskavg_matrix[256];
 time_t TargetTime;
 list_cu *CatchUpList;
 job *jhead = NULL, *jtail = NULL;

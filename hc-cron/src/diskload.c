@@ -10,13 +10,13 @@
 //#include "cron.h"
 //#include "options.h"
 
-#define BUF_OFFSET 544 // offset in /proc/stat where we start looking for disk_io
-#define BUF_LEN 128 // max len of disk_io info
-#define DISK_STRING "\ndisk_io: (3,0):("
-#define DISK_STRING_LEN 17
+#define BUF_OFFSET 512 // offset in /proc/stat where we start looking for disk_io
+#define BUF_LEN 512 // max len of disk_io info
+#define DISK_STRING " (3,0):("
+#define DISK_STRING_LEN 8
 
 extern int diskavg_file;
-extern char diskavg_matrix[];
+extern unsigned char diskavg_matrix[];
 
 /* diskload.c - makes cron wait on startup for the disk to calm down before
  * starting any jobs. For this we read the number of disk irqs from /proc/stat.
@@ -27,7 +27,7 @@ extern char diskavg_matrix[];
  */
 
 static char rcsid[] =
-  "$Id: diskload.c,v 1.10 2001/05/31 17:57:58 Hazzl Exp $";
+  "$Id: diskload.c,v 1.11 2001/06/03 02:56:01 Hazzl Exp $";
 
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
@@ -38,14 +38,14 @@ static char rcsid[] =
  * 	   so that it can be used for a search
  */
 void
-init_search (const char *s, size_t len, char *matrix)
+init_search (const unsigned char *s, size_t len, unsigned char *matrix)
 {
   (void) memset (matrix,(int) len, 256);
   do
     {
-      matrix[(int) *(s++)] = --len;
+      matrix[*(s++)] = --len;
     }
-  while (len >= 1); //don't index the last char in the matrix
+  while (len > 1); //don't index the last char in the matrix
 }
 
 
@@ -54,12 +54,13 @@ init_search (const char *s, size_t len, char *matrix)
  * return: pointer to the _last_ byte of the first ocurrence of *string in 
  *	   *buffer or NULL if not found
  */
-char *
-search (const char *buffer, const size_t buf_len, 
-	const char *string, const size_t str_len, const char *matrix)
+unsigned char *
+search (const unsigned char *buffer, const size_t buf_len, 
+	const unsigned char *string, const size_t str_len, 
+	const unsigned char *matrix)
 {
   const size_t len = str_len - 1;
-  const char last_char = string[len];
+  const unsigned char last_char = string[len];
   size_t pos = len;
 
   while (pos < buf_len)
@@ -67,9 +68,9 @@ search (const char *buffer, const size_t buf_len,
        if (buffer[pos] == last_char)
 	 {
 	    if (strncmp (&buffer[pos - len], string, str_len) == 0)
-	      return (char *) &buffer[pos];	      
+	      return (unsigned char *) &buffer[pos];	      
 	 }
-       pos += matrix[(int) buffer[pos]];
+       pos += matrix[(unsigned char) buffer[pos]];
     }
   return NULL;
 }
