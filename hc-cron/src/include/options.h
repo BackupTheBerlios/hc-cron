@@ -1,5 +1,5 @@
 /*
- * $Id: options.h,v 1.5 2000/06/18 09:53:31 fbraun Exp $
+ * $Id: options.h,v 1.6 2000/06/18 10:40:38 fbraun Exp $
  */
 
 #if HAVE_PATHS_H
@@ -21,7 +21,7 @@
 	     * not supplied on the command line, the defaults in this 
 	     * source file apply (for both programs).
 	     */
-#define CONFIG_FILE "/etc/cron.conf"	/* */
+/*#define CONFIG_FILE "/etc/cron.conf"	/* */
 
 #ifndef CRONDIR
 			/* CRONDIR is where crond(8) and crontab(1) both chdir
