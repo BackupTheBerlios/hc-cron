@@ -17,7 +17,7 @@
 
 /* cron.h - header for vixie's cron
  *
- * $Id: cron.h,v 1.4 1999/11/21 09:03:19 fbraun Exp $
+ * $Id: cron.h,v 1.5 1999/12/19 11:28:40 fbraun Exp $
  *
  * vix 14nov88 [rest of log is in RCS]
  * vix 14jan87 [0 or 7 can be sunday; thanks, mwm@berkeley]
@@ -234,7 +234,7 @@ void set_cron_uid __P ((void)),
   log_it __P ((char *, int, char *, char *)), log_close __P ((void)),
 		/* next five added by hcl */
   build_cu_list __P ((cron_db *, list_cu **)),
-  save_lastrun __P ((list_cu *)), wait_diskload __P ((void));
+  save_lastrun __P ((list_cu *)), init_diskload __P ((void));
 
 RETSIGTYPE sigterm_handler __P ((int));
 
@@ -248,7 +248,8 @@ int job_runqueue __P ((void)),
   load_env __P ((char *, FILE *)),
   cron_pclose __P ((FILE *)),
   strcmp_until __P ((char *, char *, int)),
-  allowed __P ((char *)), strdtb __P ((char *));
+  allowed __P ((char *)), strdtb __P ((char *)),
+  get_diskload __P ((int, char *));
 
 char *env_get __P ((char *, char **)),
   *arpadate __P ((time_t *)),
@@ -264,20 +265,16 @@ entry *load_entry __P ((FILE *, void (*)(), struct passwd *, char **));
 
 FILE *cron_popen __P ((char *, char *, entry *));
 
-
 				/* in the C tradition, we only create
 				 * variables for the main program, just
 				 * extern them elsewhere.
 				 */
 
 #ifdef MAIN_PROGRAM
-# if !defined(LINT) && !defined(lint)
 char *copyright[] = {
   "@(#) Copyright 1988,1989,1990,1993,1994 by Paul Vixie",
   "@(#) All rights reserved"
 };
-
-# endif
 
 char *MonthNames[] = {
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -292,6 +289,8 @@ char *DowNames[] = {
 
 char *ProgramName;
 int LineNumber;
+int diskavg_file;
+char diskavg_matrix[256];
 time_t TargetTime;
 list_cu *CatchUpList;
 job *jhead = NULL, *jtail = NULL;
