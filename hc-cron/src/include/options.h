@@ -1,5 +1,5 @@
 /*
- * $Id: options.h,v 1.6 2000/06/18 10:40:38 fbraun Exp $
+ * $Id: options.h,v 1.7 2001/05/31 17:08:33 Hazzl Exp $
  */
 
 #if HAVE_PATHS_H
@@ -128,8 +128,7 @@
  * these are site-dependent
  */
 
-#define MAXLOADAVG      .8	/* at which loadavg don't run IDLE jobs? */
-#define MAX_DISKLOAD 50		/* how many disk-irqs/sec are considered heavy load? */
+#define MAX_DISKLOAD 20		/* how many disk-irqs/sec are considered heavy load? */
 
 #ifndef DEBUGGING
 #define DEBUGGING 0		/* 1 or 0 -- do you want debugging code built in? */

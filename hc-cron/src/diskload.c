@@ -27,26 +27,25 @@ extern char diskavg_matrix[];
  */
 
 static char rcsid[] =
-  "$Id: diskload.c,v 1.8 2001/05/31 02:27:15 Hazzl Exp $";
+  "$Id: diskload.c,v 1.9 2001/05/31 17:08:33 Hazzl Exp $";
 
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
+ *        len:          length of that string
  * 	  *matrix : 	an array of exactly 256 bytes.
  * return: void
  * action: The array pointed to by *matrix will be filled
  * 	   so that it can be used for a search
  */
 void
-init_search (char *s, char *matrix)
+init_search (const char *s, size_t len, char *matrix)
 {
-  size_t len;
-  len = strlen (s);
   (void) memset (matrix,(int) len, 256);
   do
     {
-      matrix[(int) *(s++)] = --len;
+      matrix[(int) *(s++)] = len--;
     }
-  while (len);
+  while (len >= 1); //don't index the last char in the matrix
 }
 
 
@@ -56,26 +55,21 @@ init_search (char *s, char *matrix)
  *	   *buffer or NULL if not found
  */
 char *
-search (char *buffer,
-	size_t buf_len, char *string, size_t str_len, char *matrix)
+search (const char *buffer, const size_t buf_len, 
+	const char *string, const size_t str_len, const char *matrix)
 {
   size_t pos;
+  const char last_char = string[str_len];
 
-  pos = str_len - 1;
+  pos = str_len;
   while (pos < buf_len)
     {
-      if (matrix[(int) buffer[pos]])
-	pos += matrix[(int) buffer[pos]];
-      else
-	{
-	  if (memcmp (&buffer[pos - str_len], string, str_len))
-	    pos++; /* pos += str_len is tempting but assumes that the last char
-		    * occurs only once FIXME
-		    * we could look for the last char instead in if and use the
-		    * second to last occurence in the matrix */
-	  else
-	    return &buffer[pos];
-	}
+       if (buffer[pos] == last_char)
+	 {
+	    if (strncmp (&buffer[pos - str_len], string, str_len) == 0)
+	      return (char *) &buffer[pos];	      
+	 }
+       pos += matrix[(int) buffer[pos]];
     }
   return NULL;
 }
@@ -124,7 +118,7 @@ get_diskload (int fd, char *matrix)
 void
 init_diskload (void)
 {
-  init_search (DISK_STRING, diskavg_matrix);
+  init_search (DISK_STRING, DISK_STRING_LEN, diskavg_matrix);
   if ((diskavg_file = open ("/proc/stat", O_RDONLY)) == -1)
     {
       log_it ("CRON", getpid (), "STARTUP",
