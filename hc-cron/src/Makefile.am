@@ -3,6 +3,7 @@ MOSTLYCLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in
 
 sbin_PROGRAMS = crond
+INCLUDES = -I$(srcdir)/include/
 
 ## crontab needs to be installed suid-root so we have to do that manually.
 noinst_PROGRAMS = crontab
