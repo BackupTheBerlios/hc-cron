@@ -7,10 +7,13 @@
 #include <string.h>
 #include <time.h>
 
-#include "cron.h"
-#include "options.h"
+//#include "cron.h"
+//#include "options.h"
 
-#define BUF_LEN 128
+#define BUF_OFFSET 544 // offset in /proc/stat where we start looking for disk_io
+#define BUF_LEN 128 // max len of disk_io info
+#define DISK_STRING "\ndisk_io: (3,0):("
+#define DISK_STRING_LEN 16
 
 extern int diskavg_file;
 extern char diskavg_matrix[];
@@ -24,7 +27,7 @@ extern char diskavg_matrix[];
  */
 
 static char rcsid[] =
-  "$Id: diskload.c,v 1.7 1999/12/19 11:28:33 fbraun Exp $";
+  "$Id: diskload.c,v 1.8 2001/05/31 02:27:15 Hazzl Exp $";
 
 /* init_search - initializes a seach matrix
  * input: *s : 		string to be searched for
@@ -38,7 +41,7 @@ init_search (char *s, char *matrix)
 {
   size_t len;
   len = strlen (s);
-  memset (matrix, len, 256);
+  (void) memset (matrix,(int) len, 256);
   do
     {
       matrix[(int) *(s++)] = --len;
@@ -65,8 +68,11 @@ search (char *buffer,
 	pos += matrix[(int) buffer[pos]];
       else
 	{
-	  if (memcmp (&buffer[pos - str_len + 1], string, str_len))
-	    pos += str_len;
+	  if (memcmp (&buffer[pos - str_len], string, str_len))
+	    pos++; /* pos += str_len is tempting but assumes that the last char
+		    * occurs only once FIXME
+		    * we could look for the last char instead in if and use the
+		    * second to last occurence in the matrix */
 	  else
 	    return &buffer[pos];
 	}
@@ -97,16 +103,16 @@ get_diskload (int fd, char *matrix)
   time_tmp = time_store;
   if (time_tmp != time (&time_store))
     {
-      if (lseek (fd, 0, SEEK_SET))
+      if (lseek (fd, BUF_OFFSET, SEEK_SET) != BUF_OFFSET)
 	return -1;
-      if (read (fd, buffer, BUF_LEN) != BUF_LEN)
+      if ( read (fd, buffer, BUF_LEN) == -1 )
 	return -1;
 
       buffer[BUF_LEN] = 0;
-      if ((found = search (buffer, BUF_LEN, "\ndisk ", 6, matrix)))
+      if ((found = search (buffer, BUF_LEN, DISK_STRING, DISK_STRING_LEN, matrix)))
 	{
 	  load_tmp = load_store;
-	  load_store = (unsigned int) strtol (found, NULL, 10);
+	  load_store = (unsigned int) strtol (++found, NULL, 10);
 	  result = (int) ((load_store - load_tmp) / (time_store - time_tmp));
 	}
       else
@@ -118,7 +124,7 @@ get_diskload (int fd, char *matrix)
 void
 init_diskload (void)
 {
-  init_search ("\ndisk ", diskavg_matrix);
+  init_search (DISK_STRING, diskavg_matrix);
   if ((diskavg_file = open ("/proc/stat", O_RDONLY)) == -1)
     {
       log_it ("CRON", getpid (), "STARTUP",
