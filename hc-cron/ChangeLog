@@ -1,0 +1,25 @@
+16/OCT/1999	switched over to autoconf and friends so that costomization
+		happens with a ./configure script. This entailed a major
+		overhaul of the directory structure and some code modifications
+hc-cron 0.13
+26/SEP/1999	created spec-file for rpm packaging.
+		cleaned up directory structure
+24/SEP/1999	using sigaction() for signaling, this should fix the occurrence
+		of zombies on libc5-systems (thanks to Hirose Masaaki)
+hc-cron 0.12
+12/SEP/1999	applied security patch by Olaf Kirch (thanks to Greg Louis)
+hc-cron 0.11
+11/OCT/1998	fixed some parsing errors, also @weekly and @monthly now work 
+		as documented (Thanks a lot to Patricia Jung)
+02/OCT/1998	bugfixes in job.c, reworked man pages, pointed out workaround
+		concerning zombies on non-RedHat systems (USE_SIGCHLD)
+30/SEP/1998	corrected typo in job.c
+
+hc-cron 0.10
+26/SEP/1998	automatic tar ball rolling in Makefile
+17/SEP/1998	a catch up job is only scheduled if no other jobs are pending
+06/SEP/1998	applied sigchild patch by redhat (from vixie-cron-3.01-26)
+30/AUG/1998	removed -mi486 from Makefile
+
+hc-cron 0.9beta
+27/AUG/1998	first public release

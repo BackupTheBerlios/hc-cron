@@ -1,0 +1,6 @@
+known bugs:
+hc-cron0.10
+if every job you run turns into a zombie after it's done you're probably not
+running RedHat Linux. Make sure that USE_SIGCHLD is not #defined in compat.h
+to fix this. (Thanks to Greg Louis <glouis@dynamicro.on.ca> for pointing
+this out)

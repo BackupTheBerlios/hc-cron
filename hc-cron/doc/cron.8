@@ -1,0 +1,78 @@
+.\"/* Copyright 1988,1990,1993 by Paul Vixie
+.\" * All rights reserved
+.\" *
+.\" * Distribute freely, except: don't remove my name from the source or
+.\" * documentation (don't take credit for my work), mark your changes (don't
+.\" * get me blamed for your possible bugs), don't alter or remove this
+.\" * notice.  May be sold if buildable source is provided to buyer.  No
+.\" * warrantee of any kind, express or implied, is included with this
+.\" * software; use at your own risk, responsibility for damages (if any) to
+.\" * anyone resulting from the use of this software rests entirely with the
+.\" * user.
+.\" *
+.\" * Send bug reports, bug fixes, enhancements, requests, flames, etc., and
+.\" * I'll try to keep a version up to date.  I can be reached as follows:
+.\" * Paul Vixie          <paul@vix.com>          uunet!decwrl!vixie!paul
+.\" */
+.\" 
+.\" 
+.TH CRON 8 "02 October 1998"
+.UC 3
+.SH NAME
+hc-cron \- daemon to execute scheduled commands on computers that do not run
+all the time (``home computers'')
+.SH SYNOPSIS
+cron
+.SH DESCRIPTION
+.I Cron
+should be started from /etc/rc or /etc/rc.local.  It will return immediately,
+so you don't need to start it with '&'. It searches /var/spool/cron for 
+crontab files which are named after accounts in /etc/passwd; these files are
+normally created by
+.IR crontab(1) .
+Crontabs found are loaded into memory.
+.I Cron
+then searches for /etc/crontab which is in a different format (see
+.IR crontab(5) ).
+At startup
+.I cron
+looks in /var/lib/cron.lastrun when it was shut down for the last time, it
+schedules jobs that occured between then and now (see
+.IR crontab(5) ).
+.PP
+.I Cron
+then wakes up every minute, examining all stored crontabs, checking each
+command to see if it should be run in the current minute.  When executing
+commands, any output is mailed to the owner of the crontab (or to the user
+named in the MAILTO environment variable in the crontab, if such exists).
+.PP
+Additionally,
+.I cron
+checks each minute to see if its spool directory's modtime (or the modtime
+on
+.IR /etc/crontab )
+has changed, and if it has,
+.I cron
+will reload all crontabs which have changed.  Thus
+.I cron
+need not be restarted whenever a crontab file is modified.  Note that the
+.IR Crontab (1)
+command updates the modtime of the spool directory whenever it changes a
+crontab.
+.SH BUGS
+.I Cron
+might not show the expected results if it is shut down before it finishes
+processing all the jobs that it has to catch up. See file BUGS for further
+known BUGS and workarounds.
+.SH FILES
+.nf
+/var/spool/cron/
+/etc/passwd
+/etc/crontab
+/var/lib/cron.lastrun
+.SH "SEE ALSO"
+crontab(1), crontab(5)
+.SH AUTHOR
+.nf
+Paul Vixie <paul@vix.com>
+modifications by Felix Braun <fbraun@atdot.org>

@@ -1,0 +1,8 @@
+- I created the preliminary configure.in script automatically.
+  Do we need all these tests in configure.in? Do we even use all of them?
+
+- check whether the compiled code can actually work
+
+- "make distcheck" fails for unknown reasons
+
+- merge Steve's changes from the debian version of vixie-cron (LoLo)

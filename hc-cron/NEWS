@@ -1,0 +1,4 @@
+hc-cron-0.80
+============
+- now uses configure script
+- cleaned up source code and directory structure
